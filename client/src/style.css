@@ -14,13 +14,13 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  display: grid;
-  place-items: center;
+  padding: 2rem 1rem;
 }
 
-.placeholder {
-  width: min(100% - 2rem, 42rem);
-  padding: 3rem;
+.debug-view {
+  width: min(100%, 64rem);
+  margin: 0 auto;
+  padding: 2rem;
   border: 1px solid #dce4e9;
   border-radius: 1rem;
   background: #fff;
@@ -40,8 +40,52 @@ h1 {
   font-size: clamp(2rem, 6vw, 3.25rem);
 }
 
-.placeholder > p:last-child {
-  margin: 1rem 0 0;
+.connection {
+  margin: 1rem 0 2rem;
+}
+
+.connection--connected {
+  color: #087443;
+}
+
+.connection--disconnected {
+  color: #a22a2a;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+.message-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-list li {
+  min-width: 0;
+  padding: 0.75rem;
+  overflow-x: auto;
+  border: 1px solid #e2e8ec;
+  border-radius: 0.5rem;
+  background: #f8fafb;
+}
+
+.message-list pre {
+  margin: 0;
+  font: 0.8rem/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.empty-state {
   color: #526371;
-  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .debug-view {
+    padding: 1.25rem;
+  }
 }

@@ -12,7 +12,7 @@ Append-only: never edit or delete old entries.
 | 0 | Kickoff / read rules | ✅ Done | 2026-10-15 | Required docs read; project files moved into a dedicated repository folder. |
 | 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
-| 3 | WebSocket server + minimal client | ⬜ Not started | | |
+| 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test and client build passed; browser disconnect/reconnect check is pending user confirmation. |
 | 4 | React table (normal traffic) | ⬜ Not started | | |
 | 5 | Sequence guard + latest-state map | ⬜ Not started | | |
 | 6 | requestAnimationFrame render loop | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-15 22:51] Step 3 — WebSocket server and minimal client
+**Prompt summary:** Connect simulator updates to a real `/feed` WebSocket, build a temporary React message viewer with reconnect behavior, add a three-second feed test, and provide manual browser steps without claiming to have run them.
+**Files created:** `server/feed.test.js` — node:test coverage for the live feed on an ephemeral port.
+**Files modified:** `server/index.js` — HTTP/WebSocket server, simulator broadcast, client/error/count logging, per-second send totals, start handle, and signal shutdown; `client/vite.config.js` — `/feed` WebSocket proxy to the configured server port; `client/src/App.jsx` and `client/src/style.css` — temporary connection status and last-ten raw-message view with backoff reconnect and cleanup; `CHANGES_LOG.md` — recorded Step 3 and updated status.
+**Files deleted:** none.
+**What changed (plain English):** The server now broadcasts every simulator update as JSON to open WebSocket clients at `/feed`. The client shows connected/disconnected state and the last ten received messages, reconnecting after drops with 1s, 2s, 4s, then 5s delays. Vite proxies `/feed` to the server port from `PORT` (default 8080), so the browser uses the Vite origin.
+**Why / design reasoning:** The Vite proxy keeps the debug client URL independent of the server host/port and works with the existing `npm start` setup. The feed server can also be launched by tests with a chosen port and closed through its returned handle.
+**Tests run & REAL results:** `npm test` → 3 tests passed, 0 failed. The feed test received 180 JSON messages in 3.011 seconds (59.78/sec); server logs reported 58, 61, and 60 messages in successive seconds and client connect/disconnect counts of 1/0. It asserted all 30 bus IDs, the eight fields and types, and consecutive per-bus sequences. The simulator tests passed. `npm run build --workspace=client` → Vite 8.3.4 transformed 16 modules and built successfully in 894ms. `git diff --check` → no whitespace errors (Git displayed its LF-to-CRLF normalization notices).
+**Verified:** Automated WebSocket feed behavior, message shape, bus coverage, per-bus sequence increments, approximate feed rate, test server closure, and client bundle compilation.
+**Not verified:** I did not open a browser or manually stop/restart only the server; the visual connection status and automatic reconnect are pending the user's check. SIGINT/SIGTERM handlers were implemented but not independently exercised in this task.
+**Known issues / limitations:** The client is intentionally a temporary raw-message debug view; normal dashboard rendering is for later steps.
+**Deviations from spec:** None.
+**Next step:** Ask the user to confirm the browser disconnect/reconnect behavior, then continue to Step 4.
 
 ### [2026-10-15 22:46] Step 2 — Telemetry simulator
 **Prompt summary:** Implement the 30-bus Node simulator with per-bus sequence counters, plausible movement and door stops, staggered drift-resistant timers, a five-second raw-output script, and unit tests; verify the update rate and an OPEN→CLOSED transition before committing.

@@ -3,4 +3,12 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      "/feed": {
+        target: `ws://localhost:${process.env.PORT ?? "8080"}`,
+        ws: true,
+      },
+    },
+  },
 });
