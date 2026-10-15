@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "start": "concurrently -n server,client \"npm run start --workspace=server\" \"npm run dev --workspace=client\"",
-    "test": "node --test",
+    "test": "node --test server/simulator.test.js server/feed.test.js client/src/lib/fleetStore.test.js",
     "load-test": "node -e \"console.log('not implemented yet')\""
   },
   "devDependencies": {

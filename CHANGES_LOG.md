@@ -14,7 +14,7 @@ Append-only: never edit or delete old entries.
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
-| 5 | Sequence guard + latest-state map | ⬜ Not started | | |
+| 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
 | 6 | requestAnimationFrame render loop | ⬜ Not started | | |
 | 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
 | 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:21] Step 5 — Freshness guard and latest-state store
+**Prompt summary:** Add a pure-JavaScript fleet store with validation, per-bus sequence freshness checks, runId reset handling, counters, snapshots, and dirty tracking; wire it into the temporary interval-driven UI and add direct node:test coverage.
+**Files created:** `client/src/lib/fleetStore.js` — pure ES-module store; `client/src/lib/fleetStore.test.js` — unit tests for freshness, validation, restart handling, ordering, counters, dirty state, and shuffled updates.
+**Files modified:** `client/src/App.jsx` — replaced the Step 4 Map with one FleetStore instance and limited WebSocket messages to parse-and-accept; `package.json` — explicitly lists all test files for Windows-safe `npm test`; `CHANGES_LOG.md` — recorded Step 5 and updated its status.
+**Files deleted:** none.
+**What changed (plain English):** The store retains one newest accepted update per bus, rejects invalid or stale updates, resets stored state when the server runId changes, tracks the requested counters, returns sorted snapshots, and exposes a consumable dirty flag. The UI continues to read store snapshots on the temporary 100 ms interval; the WebSocket message handler no longer calls React state or maintains a separate Map.
+**Why / design reasoning:** Arrival order can differ from production order, so each bus's sequence number determines freshness. Resetting state on a new runId allows a restarted server's reset sequence counters to be accepted.
+**Tests run & REAL results:** `npm test` → 13 tests passed, 0 failed. The feed test received 181 messages in 3.009 seconds (60.15/sec); all ten fleet-store tests passed, including seq 10 CLOSED followed by seq 9 OPEN retaining CLOSED and the randomized 1..500 sequence shuffle with duplicates. `npm run build --workspace=client` → Vite 8.3.4 transformed 18 modules and built successfully in 456ms. `git diff --check` → no whitespace errors (Git displayed LF-to-CRLF normalization notices).
+**Verified:** Pure Node import of the store; invalid payload rejection without throws; equal/older sequence rejection; runId reset; independent per-bus counters; sorted one-entry-per-bus snapshots; counters and dirty consumption; root test command and client bundle.
+**Not verified:** I did not open a browser. The existing table's behavior after the store wiring and the browser-visible age/state updates await the user's manual confirmation.
+**Known issues / limitations:** The 100 ms snapshot interval remains temporarily; requestAnimationFrame publishing is Step 6. This step intentionally adds no browser-side visual check.
+**Deviations from spec:** None.
+**Next step:** Step 6 — requestAnimationFrame render loop.
 
 ### [2026-10-15 23:24] Step 4 follow-up — Manual browser check confirmed
 **Prompt summary:** Record the user's manual Chrome/Edge confirmation of the 30-row fleet table and door-state transition; make no application changes.

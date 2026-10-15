@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FleetTable } from "./components/FleetTable.jsx";
+import { createFleetStore } from "./lib/fleetStore.js";
 
 const BUS_IDS = Array.from({ length: 30 }, (_, index) => (
   `BUS-${String(index + 1).padStart(2, "0")}`
@@ -10,14 +11,17 @@ const emptySnapshot = () => BUS_IDS.map((busId) => ({ busId, update: null, ageMs
 export default function App() {
   const [status, setStatus] = useState("disconnected");
   const [snapshot, setSnapshot] = useState(emptySnapshot);
-  const latestByBus = useRef(new Map());
+  const storeRef = useRef(null);
+  if (storeRef.current === null) storeRef.current = createFleetStore();
+  const store = storeRef.current;
 
   useEffect(() => {
-    // TEMP – replaced by fleetStore + rAF in Steps 5/6
+    // TEMP – replaced by requestAnimationFrame in Step 6
     const snapshotTimer = setInterval(() => {
       const now = Date.now();
+      const latestUpdates = store.getSnapshot();
       setSnapshot(BUS_IDS.map((busId) => {
-        const update = latestByBus.current.get(busId);
+        const update = latestUpdates.find((candidate) => candidate.busId === busId);
         return update
           ? { busId, update, ageMs: now - update.ts }
           : { busId, update: null, ageMs: null };
@@ -25,7 +29,7 @@ export default function App() {
     }, 100);
 
     return () => clearInterval(snapshotTimer);
-  }, []);
+  }, [store]);
 
   useEffect(() => {
     let active = true;
@@ -64,12 +68,10 @@ export default function App() {
         setStatus("connected");
       };
       socket.onmessage = (event) => {
-        if (!active) return;
         try {
-          const update = JSON.parse(event.data);
-          latestByBus.current.set(update.busId, update);
+          store.accept(JSON.parse(event.data));
         } catch {
-          // Ignore malformed frames; valid simulator frames are stored without a React update.
+          store.accept(null);
         }
       };
       socket.onerror = () => {
@@ -88,7 +90,7 @@ export default function App() {
       if (reconnectTimer !== null) clearTimeout(reconnectTimer);
       if (socket && socket.readyState < WebSocket.CLOSING) socket.close();
     };
-  }, []);
+  }, [store]);
 
   return (
     <main className="debug-view">
