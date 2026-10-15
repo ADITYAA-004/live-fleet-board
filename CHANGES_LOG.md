@@ -14,10 +14,10 @@ Append-only: never edit or delete old entries.
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
-| 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
+| 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, client build, and user's manual Chrome/Edge browser check for Steps 5, 7, and 8 passed; detailed metric values were placeholders. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
-| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and the user's manual Chrome/Edge browser check passed; exact console rate values were not supplied. |
-| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests, full test suite, and client build passed; browser panel behavior awaits user confirmation. |
+| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user's manual Chrome/Edge browser check passed; table updated during burst and server logged injected BUS-07 line. Exact metrics were placeholders. |
+| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests, full test suite, client build, and user's manual Chrome/Edge browser check passed; detailed metric and disconnect values were placeholders. |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
 | 10 | DECISIONS.md + demo prep + transcript | ⬜ Not started | | |
 
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:52] Steps 5, 7, 8 follow-up — Manual browser checks confirmed
+**Prompt summary:** Record the user's manual Chrome/Edge browser confirmation for Steps 5, 7, and 8, clear their pending browser notes, and make no application-code changes.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — added this follow-up entry and updated the Step Status notes for Steps 5, 7, and 8.
+**Files deleted:** none.
+**What changed (plain English):** The user reported completing the browser checks for Steps 5, 7, and 8. The table kept updating during the burst, and the server log showed the injected out-of-order line. All normal/burst metric readings and the disconnected-state observations were submitted as literal placeholders (`<REAL>` or `<shown / not shown>`), so no numeric or qualitative values were recorded.
+**Why / design reasoning:** The project log records the user's confirmation while preserving the distinction between observed behavior and values that were not supplied; placeholder text cannot support invented measurements.
+**Tests run & REAL results:** No automated tests or browser commands were run in this documentation-only task. The browser observations below are reported by the user.
+**Verified:** Per the user's manual Chrome/Edge report, checks for Steps 5, 7, and 8 were completed; the table kept updating during the burst; and the server log showed the injected out-of-order line. The user provided fields for normal and burst incoming rates, React commits/sec, rAF callbacks/sec, maximum age, burst indicator, disconnected header, ages, and incoming rate, but all contained placeholders.
+**Not verified:** I did not independently inspect the browser. Exact normal/burst rates, max ages, indicator state, and disconnected-state observations remain unspecified.
+**Known issues / limitations:** The detailed readings cannot be recovered from the literal placeholders in the user's report.
+**Deviations from spec:** None.
+**Next step:** Step 9 — load/burst test and fixes.
 
 ### [2026-10-16 00:50] Step 8 — Measured honesty panel
 **Prompt summary:** Add framework-free fake-clock metric calculations, display measured feed/render/staleness values in the dashboard, mark stale buses, remove temporary console counters, document metric meaning, and verify with tests/build.
