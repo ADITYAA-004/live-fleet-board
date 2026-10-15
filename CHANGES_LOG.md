@@ -13,7 +13,7 @@ Append-only: never edit or delete old entries.
 | 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
-| 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests and client build passed; manual browser confirmation remains pending. |
+| 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
 | 5 | Sequence guard + latest-state map | ⬜ Not started | | |
 | 6 | requestAnimationFrame render loop | ⬜ Not started | | |
 | 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-15 23:24] Step 4 follow-up — Manual browser check confirmed
+**Prompt summary:** Record the user's manual Chrome/Edge confirmation of the 30-row fleet table and door-state transition; make no application changes.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the user-confirmed browser check and cleared Step 4's pending note.
+**Files deleted:** none.
+**What changed (plain English):** The user confirmed 30 distinct bus rows sorted by ID, changing values without a refresh, and observed a bus transition from OPEN back to CLOSED.
+**Why / design reasoning:** This completes the manual browser check that was pending after Step 4's automated checks.
+**Tests run & REAL results:** No commands or automated tests were run for this documentation-only task. The browser check was performed and reported by the user.
+**Verified:** User-confirmed Chrome/Edge behavior: 30 distinct sorted rows, live value updates, and an OPEN-to-CLOSED transition.
+**Not verified:** I did not independently reproduce the browser check.
+**Known issues / limitations:** None reported for this manual check.
+**Deviations from spec:** None.
+**Next step:** Step 5 — Sequence guard and latest-state map.
 
 ### [2026-10-15 23:11] Step 4 — Fleet table
 **Prompt summary:** Replace the temporary raw-message view with a sorted 30-bus table showing position, speed, door, sequence, and update age, using a temporary 100 ms snapshot publisher while preserving WebSocket reconnect behavior.
