@@ -1,0 +1,47 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #1c2733;
+  background: #f3f6f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+}
+
+.placeholder {
+  width: min(100% - 2rem, 42rem);
+  padding: 3rem;
+  border: 1px solid #dce4e9;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1rem 3rem rgb(30 52 68 / 8%);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: #527083;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.25rem);
+}
+
+.placeholder > p:last-child {
+  margin: 1rem 0 0;
+  color: #526371;
+  line-height: 1.6;
+}

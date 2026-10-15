@@ -76,5 +76,6 @@ After **every task** (every prompt the user gives you), before you reply, update
 - Before finishing a step: run what you built, show the real output, and state what is verified vs not verified.
 - Keep code small and readable. Comment WHY on the freshness guard, the rAF loop, and the burst/out-of-order logic.
 - Do not add dependencies without saying why. Pin nothing exotic.
+- The sandbox has no network access. If a step needs npm install or any download, tell the user to run it in their own terminal and wait for the result. Do not claim it passed.
 - End every reply with: (a) what changed, (b) how to verify it, (c) known limitations, (d) confirmation that `CHANGES_LOG.md` was updated.
 - If the spec and your instinct disagree, follow the spec and tell the user.

@@ -1,0 +1,20 @@
+{
+  "name": "live-fleet-board",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start": "concurrently -n server,client \"npm run start --workspace=server\" \"npm run dev --workspace=client\"",
+    "test": "node -e \"console.log('not implemented yet')\"",
+    "load-test": "node -e \"console.log('not implemented yet')\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
