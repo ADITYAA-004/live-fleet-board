@@ -15,7 +15,7 @@ Append-only: never edit or delete old entries.
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
-| 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, and client build passed; browser console measurement is pending user confirmation. |
+| 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
 | 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
 | 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:29] Step 6 follow-up — Manual browser check confirmed
+**Prompt summary:** Record the user's Chrome/Edge confirmation of the Step 6 table and temporary console counters; make no application changes.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the manual confirmation and cleared the Step 6 pending browser-check note.
+**Files deleted:** none.
+**What changed (plain English):** The user confirmed that the table still showed 30 buses updating and that the browser check passed. The submitted `ws msgs/sec` and `publishes/sec` values were literal `<PUT THE REAL NUMBER>` placeholders, so no numeric readings were recorded.
+**Why / design reasoning:** The log must distinguish the user's confirmation from exact metric values that were not included; inventing those values would make the session record inaccurate.
+**Tests run & REAL results:** No tests or commands were run; this was a documentation-only update based on the user's manual browser report.
+**Verified:** The user reported that the Step 6 browser check passed, the table still showed 30 buses updating, and the console displayed both counters. Exact counter values were not provided.
+**Not verified:** No independent browser check was performed in this session, and the numeric `ws msgs/sec` / `publishes/sec` readings remain unknown.
+**Known issues / limitations:** The exact counter readings were omitted from the user's message and cannot be recovered from its placeholders.
+**Deviations from spec:** None.
+**Next step:** Step 7 — automatic burst and out-of-order updates.
 
 ### [2026-10-16 00:26] Step 6 — Controlled requestAnimationFrame render loop
 **Prompt summary:** Replace the temporary 100 ms publisher with a framework-free, fake-rAF-testable render loop; connect it through a React hook, keep ages fresh, add temporary development rate counters, and document hidden-tab behavior.
