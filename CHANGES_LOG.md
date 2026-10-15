@@ -16,7 +16,7 @@ Append-only: never edit or delete old entries.
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
-| 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
+| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated WebSocket burst, delivery reordering, stale rejection, sequence/timestamp, and timer-cleanup checks passed; browser confirmation is pending. |
 | 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
 | 10 | DECISIONS.md + demo prep + transcript | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:37] Step 7 — Burst generation and out-of-order delivery
+**Prompt summary:** Add an elapsed-time catch-up burst scheduler, automatic and manual burst triggers, bounded out-of-order WebSocket delivery, and a deterministic stale-OPEN case without changing the client freshness guard.
+**Files created:** `server/burst.test.js` — WebSocket integration test that measures a short burst, feeds it to the real fleet store, and checks timer cleanup.
+**Files modified:** `server/simulator.js` — added burst scheduling based on elapsed monotonic time, per-bus catch-up, burst events, and the deterministic BUS-07 OPEN/CLOSED sequence; `server/index.js` — added development `POST /burst`, first-client automatic/repeating bursts, bounded delayed delivery and shutdown cleanup; `server/config.js` — added `BURST_ON_START`; `package.json` — added the burst integration test to `npm test`; `README.md` — documented automatic/manual/startup burst controls; `CHANGES_LOG.md` — recorded Step 7 and updated status.
+**Files deleted:** none.
+**What changed (plain English):** Normal mode continues sending updates in order at about 60 messages/sec total. During a burst, a 5 ms scheduler catches up against elapsed time instead of relying on one 10 ms timer per bus. A bounded queue delays a sample of burst updates by 20–300 ms and makes the next update for that bus immediate. Each burst also makes BUS-07 produce an adjacent OPEN then CLOSED state and delivers CLOSED first. The server can start bursts automatically after the first WebSocket client connects, immediately via `BURST_ON_START=1`, or on a development-only `POST /burst` request.
+**Why / design reasoning:** Windows timer resolution can miss a 10 ms per-bus cadence, so production count is computed from elapsed monotonic time. Per-bus sequence values and production timestamps remain assigned when updates are produced; only socket delivery is reordered. Bounded delayed timers and shutdown cleanup prevent an accumulating backlog.
+**Tests run & REAL results:** `npm test` → 19 passed, 0 failed. The burst integration run received 6,002 messages in 2.014 seconds (2,980.14 msgs/sec), observed 635 out-of-order frames, and the real `FleetStore` rejected 635 stale frames; BUS-07 remained CLOSED at its highest produced sequence. It also checked 30 buses, no production sequence gaps, non-decreasing production timestamps, no normal-mode reordering, and timer cleanup. Existing normal feed check → 180 messages in 3.003 seconds (59.94/sec). `npm run build --workspace=client` → Vite 8.3.4 transformed 20 modules and built successfully in 383ms. `git diff --check` → no whitespace errors (Git displayed LF-to-CRLF normalization notices).
+**Verified:** Real test WebSocket connection, POST `/burst` response, automatic first-client timer setup and shutdown cleanup, target-rate burst delivery, random plus deterministic reordering, stale rejection through the existing unchanged `client/src/lib/fleetStore.js`, BUS-07 CLOSED final state, contiguous production sequences, monotonic timestamps, normal-mode ordering, complete test suite, and client build.
+**Not verified:** I did not open the browser. The user should trigger a burst and confirm the table stays populated with 30 buses, the rates rise and return to normal, and BUS-07 remains CLOSED after the stale OPEN delivery.
+**Known issues / limitations:** The guaranteed BUS-07 case uses an intentionally short stopped/dwell transition to create an adjacent pair; the simulator's ordinary passenger-stop dwell remains 1–3 seconds. Random delayed updates are bounded to at most `BUS_COUNT * 8` timers plus one reserved timer for the guaranteed stale case.
+**Deviations from spec:** None.
+**Next step:** Ask the user to confirm the Step 7 browser behavior, then continue to Step 8 — honesty panel.
 
 ### [2026-10-16 00:29] Step 6 follow-up — Manual browser check confirmed
 **Prompt summary:** Record the user's Chrome/Edge confirmation of the Step 6 table and temporary console counters; make no application changes.
