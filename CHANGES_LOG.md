@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user's manual Chrome/Edge browser check passed; table updated during burst and server logged injected BUS-07 line. Exact metrics were placeholders. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests, full test suite, client build, and user's manual Chrome/Edge browser check passed; detailed metric and disconnect values were placeholders. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root test suite, three-burst load/soak, 45-second automatic timing, and startup from a clone of the committed tree passed. Browser repaint and honesty-panel readings remain pending because supplied metric values were placeholders. |
-| 10 | DECISIONS.md + demo prep + transcript | ⬜ Not started | | |
+| 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; video and full transcript are still for the user to add. Browser metric readings remain pending because the supplied values were placeholders. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 01:20] Step 10 — Decisions, demo outline, and submission consistency
+**Prompt summary:** Prepare the design-decision document, a timed demo outline, and current project context; check the Section 9 submission list, exercise README commands, preserve unrelated user files, and update project status.
+**Files created:** `DECISIONS.md` — records chosen design, rejected alternatives, assumptions, trade-offs, scale risks, and next steps; `DEMO_SCRIPT.md` — timed 5–10 minute outline, live-demo checklist, and transparent AI-suggestion section; `docs/PROJECT_CONTEXT.md` — finished-state summary, measured results, commits, verification limits, and submission checklist.
+**Files modified:** `CHANGES_LOG.md` — recorded this step and marked Step 10 Done after verification; no application code or README changes.
+**Files deleted:** none. `PROJECT_CONTEXT.md.pdf` remains untouched and untracked; it was excluded from the commit as an unrelated user file.
+**What changed (plain English):** Added the requested written submission documents, compared current files with Section 9 of the source document, and documented which deliverables remain the user's responsibility. The AI Suggestions Log is empty, so the demo outline lists two verified Step 9 harness issues as candidates without claiming either was an AI suggestion or adding a log entry.
+**Why / design reasoning:** Keep the decision record grounded in measured results and project history. Preserve the distinction between headless store-age evidence and browser paint, and leave the video and full AI chat transcript for the user to supply.
+**Tests run & REAL results:** `node -v` → `v24.22.0`; `npm -v` → `11.19.1`. PowerShell `$env:NODE_USE_SYSTEM_CA = '1'; npm install` → `up to date, audited 45 packages in 4s`, 0 vulnerabilities. `npm test` → 24 passed, 0 failed, duration 9.629s; normal feed integration measured 59.90/sec and the short burst measured 2,977.18/sec with 629 stale rejects. `npm run load-test` → PASS: baseline 59.91/sec; three burst averages 2,995.84, 2,994.01, and 2,996.84/sec; stale rejects 5,727; state regressions 0; worst sampled age 55ms; p99 sampled age 38ms; heap 8,792 KiB to 9,905 KiB (+1,113 KiB, within 12,288 KiB); automatic burst 45.02s after client 1, and client 2 did not reset its timer. `npm start` with `PORT=8094` → server started on 8094, Vite on 5175 because 5173/5174 were occupied; HTTP 200 and `/src/main.jsx` present; WebSocket through the Vite `/feed` proxy delivered an eight-field update; `POST /burst` returned `{"ok":true,"started":true}`. `BURST_ON_START=1 npm start` with `PORT=8095` → immediate burst and BUS-07 out-of-order log observed. Both test instances were stopped; the existing service on port 8080 was untouched. `git check-ignore -v` confirmed `node_modules/`, `dist/`, `coverage/`, `.env`, `.env.*`, and `*.log` are ignored.
+**Verified:** README install/start/test/load-test and PowerShell burst-control commands worked; source Section 9 checklist items were classified in `docs/PROJECT_CONTEXT.md`; all tests and load-test checks passed; no application defect was found or changed.
+**Not verified:** Browser-visible honesty-panel rate/age readings and disconnect behavior remain pending because prior supplied values were placeholders. The video and full AI chat transcript are not present; the two files in `docs/ai-transcript/` are setup session notes only. The AI Suggestions Log remains empty pending a real, user-confirmed suggestion from the chat history.
+**Known issues / limitations:** `PROJECT_CONTEXT.md.pdf` is an unrelated untracked file and is intentionally preserved outside the commit. Existing listeners on ports 8080, 5173, and 5174 were left running. Headless load-test ages do not measure browser paint.
+**Deviations from spec:** None.
+**Next step:** User records the video, adds the full chat transcript, and supplies actual browser honesty-panel readings and a real logged AI suggestion if required for the video.
 
 ### [2026-10-16 01:07] Step 9 follow-up — Committed-tree clean start confirmed
 **Prompt summary:** Repeat the clean-start check from a Git clone of the committed Step 9 tree, then remove the temporary checkout.
