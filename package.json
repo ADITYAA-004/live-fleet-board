@@ -1,6 +1,7 @@
 {
   "name": "live-fleet-board",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "engines": {
     "node": ">=20.19.0"
@@ -12,7 +13,7 @@
   "scripts": {
     "start": "concurrently -n server,client \"npm run start --workspace=server\" \"npm run dev --workspace=client\"",
     "test": "node --test server/simulator.test.js server/feed.test.js server/burst.test.js client/src/lib/fleetStore.test.js client/src/lib/renderLoop.test.js client/src/lib/metrics.test.js",
-    "load-test": "node -e \"console.log('not implemented yet')\""
+    "load-test": "node --expose-gc scripts/load-test.js"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

@@ -74,7 +74,9 @@ Run the load-test / burst-check script:
 npm run load-test
 ```
 
-Both scripts are placeholders for now and print `not implemented yet`.
+The load test starts an isolated server on a free port, unless `LOAD_TEST_URL` points to a running server (for example, `http://localhost:8080`). It measures a 10-second normal-feed baseline, then runs three bursts and checks their average and peak rates, stale-update rejection, per-bus accepted-state age sampled every 50 ms, out-of-order protection, final sequence state, retained store size, and heap growth. It also starts a fresh default-timing server to measure the first-client automatic burst delay and confirm a second client does not restart the timer. The test reports that its age values measure the headless store, not browser paint; use the browser honesty panel for repaint measurements.
+
+The script exits with a nonzero status if a required check fails. Heap usage is sampled after garbage collection; the allowed growth is the larger of 12 MiB or 25% of the initial heap sample, which allows ordinary runtime variation while catching retained growth across the three-burst soak.
 
 ## Project structure
 
