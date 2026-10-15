@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "start": "concurrently -n server,client \"npm run start --workspace=server\" \"npm run dev --workspace=client\"",
-    "test": "node -e \"console.log('not implemented yet')\"",
+    "test": "node --test",
     "load-test": "node -e \"console.log('not implemented yet')\""
   },
   "devDependencies": {

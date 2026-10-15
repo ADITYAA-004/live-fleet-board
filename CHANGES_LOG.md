@@ -11,7 +11,7 @@ Append-only: never edit or delete old entries.
 |---|------|--------|-----------|-------|
 | 0 | Kickoff / read rules | ✅ Done | 2026-10-15 | Required docs read; project files moved into a dedicated repository folder. |
 | 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
-| 2 | Node.js simulator | ⬜ Not started | | |
+| 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ⬜ Not started | | |
 | 4 | React table (normal traffic) | ⬜ Not started | | |
 | 5 | Sequence guard + latest-state map | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-15 22:46] Step 2 — Telemetry simulator
+**Prompt summary:** Implement the 30-bus Node simulator with per-bus sequence counters, plausible movement and door stops, staggered drift-resistant timers, a five-second raw-output script, and unit tests; verify the update rate and an OPEN→CLOSED transition before committing.
+**Files created:** `server/simulator.js` — simulator class, stable bus state, per-process run ID, update callbacks, movement, stop cycles, staggered timers, and clean timer shutdown; `server/simulator.test.js` — node:test coverage for bus IDs, update shape/types, sequences, door values, and timer cleanup; `scripts/print-sim.js` — prints raw JSON updates for five seconds.
+**Files modified:** `package.json` — replaced the placeholder test command with `node --test`; `CHANGES_LOG.md` — recorded Step 2 verification and updated its status.
+**Files deleted:** none.
+**What changed (plain English):** Added 30 buses (`BUS-01` through `BUS-30`) with independent state and sequences beginning at 1. The simulator emits plain telemetry objects, moves buses with smoothly changing speeds, schedules periodic stops with 1–3 second door-open periods, and spreads bus ticks across the normal interval. Each next tick is based on its intended time, and missed intervals are skipped rather than emitted as a catch-up burst. A per-bus rate multiplier is present for a later burst step.
+**Why / design reasoning:** Independent bus timers provide staggered normal traffic and let a later burst change each bus's frequency without replacing simulator scheduling. Ticks advance from their intended schedule to limit drift; skipped late intervals avoid flooding consumers after a delayed callback.
+**Tests run & REAL results:** `npm test` → 2 tests passed, 0 failed (`node --test`; 3.163 seconds total). `node scripts/print-sim.js` → ran for five seconds, printed 301 raw JSON updates plus `Stopped after 5 seconds.`; captured examples included BUS-01/02/03 with `seq: 1`, and bus start times were staggered. A separate 35-second run → elapsed 35.016 seconds, 2,101 updates, 60.00 updates/sec, 31 OPEN→CLOSED transitions (first observed on BUS-04 at seq 26), and `activeTimersAfterStop: 0`. `git diff --check` → no whitespace errors (Git only reported its configured LF-to-CRLF normalization notice for `package.json`).
+**Verified:** Exactly 30 stable IDs; all eight update fields, plain-object shape, expected value types/ranges, valid door values, and consecutive per-bus sequences beginning at 1; stop clears timers and prevents later updates; five-second raw output; 35-second measured rate and OPEN→CLOSED transitions.
+**Not verified:** No WebSocket integration or client rendering was attempted, as requested; the simulator was exercised directly in Node only.
+**Known issues / limitations:** Burst delivery and out-of-order generation remain for Step 7. Timer scheduling and randomized driving behavior were observed in this session; rates can vary slightly under host load.
+**Deviations from spec:** None.
+**Next step:** Step 3 — WebSocket server and minimal client.
 
 ### [2026-10-15 22:38] Step 1 verification — Install and runtime check
 **Prompt summary:** Resume Step 1 verification with manually installed Node LTS, use the system CA only in the current PowerShell process, install dependencies, verify startup and the local HTTP response, update README, and commit only if all checks pass.
