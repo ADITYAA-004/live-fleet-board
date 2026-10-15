@@ -15,7 +15,7 @@ Append-only: never edit or delete old entries.
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
-| 6 | requestAnimationFrame render loop | ⬜ Not started | | |
+| 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, and client build passed; browser console measurement is pending user confirmation. |
 | 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
 | 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:26] Step 6 — Controlled requestAnimationFrame render loop
+**Prompt summary:** Replace the temporary 100 ms publisher with a framework-free, fake-rAF-testable render loop; connect it through a React hook, keep ages fresh, add temporary development rate counters, and document hidden-tab behavior.
+**Files created:** `client/src/lib/renderLoop.js` — injected raf/caf/clock render loop; `client/src/lib/renderLoop.test.js` — fake-rAF coalescing, interval, cleanup, idempotence, and resume tests; `client/src/hooks/useFleetSnapshot.js` — React hook that owns and stops the loop.
+**Files modified:** `client/src/App.jsx` — removed the setInterval snapshot publisher, wired the hook, and added temporary dev-only rate counters; `client/src/components/FleetTable.jsx` — computes displayed age from a per-publish wall-clock value and memoizes rows using runId, sequence, and age time; `package.json` — added the render-loop test to the explicit root test command; `CHANGES_LOG.md` — recorded Step 6, updated status, and documented background-tab behavior.
+**Files deleted:** none.
+**What changed (plain English):** The render loop publishes at most once in each animation frame when the store is dirty, and also publishes at least every ~100 ms while data is idle so ages refresh. The WebSocket handler remains parse-and-store only. In development, a temporary one-second console counter reports WebSocket messages/sec and publishes/sec; it is marked for replacement by the Step 8 honesty panel. Rows compare their sequence and, when populated, the frame time used for age; empty rows skip time-only rerenders.
+**Why / design reasoning:** A 60 Hz display is a maximum repaint cadence, not a promise to show every incoming update. The store intentionally coalesces intermediate motion so the browser can stay current. If a background tab pauses rAF, the latest-state Map holds only the newest state; the first frame after return publishes that snapshot once, with no backlog replay.
+**Tests run & REAL results:** `npm test` → 18 tests passed, 0 failed. The five render-loop fake-rAF tests passed, including 1,000 updates coalesced into one publish, 120 idle frames refreshing about every 100 ms, pending-frame cancellation, idempotent start, and one latest-state publish after a simulated hidden interval. The WebSocket feed test received 180 messages in 3.001 seconds (59.98/sec). `npm run build --workspace=client` → Vite 8.3.4 transformed 20 modules and built successfully in 611ms. `git diff --check` → no whitespace errors (Git displayed LF-to-CRLF normalization notices).
+**Verified:** Framework-free Node import and fake-rAF scheduling; latest-state coalescing; dirty/age publish conditions; stop/cancel and duplicate-start behavior; hidden-tab resume coalescing; complete test suite and client build.
+**Not verified:** I did not open the browser or inspect the development console. The table update cadence and temporary `ws msgs/sec` / `publishes/sec` lines await the user's manual check.
+**Known issues / limitations:** Browsers pause requestAnimationFrame in hidden tabs. On return, the next frame publishes the latest stored snapshot without replaying intermediate updates. The 100 ms cadence is a minimum age refresh interval, not a guaranteed fixed rate.
+**Deviations from spec:** None.
+**Next step:** Ask the user to confirm the Step 6 browser table and temporary console counters, then continue to Step 7.
 
 ### [2026-10-16 00:21] Step 5 — Freshness guard and latest-state store
 **Prompt summary:** Add a pure-JavaScript fleet store with validation, per-bus sequence freshness checks, runId reset handling, counters, snapshots, and dirty tracking; wire it into the temporary interval-driven UI and add direct node:test coverage.

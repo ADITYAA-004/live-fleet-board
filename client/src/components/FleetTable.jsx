@@ -1,7 +1,7 @@
 import { memo } from "react";
 
-const FleetRow = memo(function FleetRow({ bus }) {
-  const { busId, update, ageMs } = bus;
+const FleetRow = memo(function FleetRow({ bus, now }) {
+  const { busId, update } = bus;
 
   return (
     <tr>
@@ -16,20 +16,23 @@ const FleetRow = memo(function FleetRow({ bus }) {
             </span>
           </td>
           <td>{update.seq}</td>
-          <td>{ageMs}</td>
+          <td>{now - update.ts}</td>
         </>
       ) : (
         <td colSpan="5" className="waiting">waiting…</td>
       )}
     </tr>
   );
-}, (previous, next) => (
-  previous.bus.busId === next.bus.busId
-  && previous.bus.update?.seq === next.bus.update?.seq
-  && previous.bus.ageMs === next.bus.ageMs
-));
+}, (previous, next) => {
+  const sameBus = previous.bus.busId === next.bus.busId;
+  const sameSequence = previous.bus.update?.seq === next.bus.update?.seq;
+  const sameRun = previous.bus.update?.runId === next.bus.update?.runId;
+  // Compare runId because restart resets seq; populated rows compare frame time so ages stay fresh.
+  const sameAge = previous.bus.update === null || previous.now === next.now;
+  return sameBus && sameRun && sameSequence && sameAge;
+});
 
-export function FleetTable({ snapshot }) {
+export function FleetTable({ snapshot, now }) {
   const sortedBuses = [...snapshot].sort((left, right) => left.busId.localeCompare(right.busId));
 
   return (
@@ -46,7 +49,7 @@ export function FleetTable({ snapshot }) {
           </tr>
         </thead>
         <tbody>
-          {sortedBuses.map((bus) => <FleetRow key={bus.busId} bus={bus} />)}
+          {sortedBuses.map((bus) => <FleetRow key={bus.busId} bus={bus} now={now} />)}
         </tbody>
       </table>
     </div>

@@ -1,35 +1,33 @@
 import { useEffect, useRef, useState } from "react";
 import { FleetTable } from "./components/FleetTable.jsx";
 import { createFleetStore } from "./lib/fleetStore.js";
-
-const BUS_IDS = Array.from({ length: 30 }, (_, index) => (
-  `BUS-${String(index + 1).padStart(2, "0")}`
-));
-
-const emptySnapshot = () => BUS_IDS.map((busId) => ({ busId, update: null, ageMs: null }));
+import { useFleetSnapshot } from "./hooks/useFleetSnapshot.js";
 
 export default function App() {
   const [status, setStatus] = useState("disconnected");
-  const [snapshot, setSnapshot] = useState(emptySnapshot);
   const storeRef = useRef(null);
   if (storeRef.current === null) storeRef.current = createFleetStore();
   const store = storeRef.current;
+  const { snapshot, now, publishCountRef } = useFleetSnapshot(store);
+  const previousReceivedRef = useRef(store.totalReceived);
+  const previousPublishedRef = useRef(publishCountRef.current);
 
   useEffect(() => {
-    // TEMP – replaced by requestAnimationFrame in Step 6
-    const snapshotTimer = setInterval(() => {
-      const now = Date.now();
-      const latestUpdates = store.getSnapshot();
-      setSnapshot(BUS_IDS.map((busId) => {
-        const update = latestUpdates.find((candidate) => candidate.busId === busId);
-        return update
-          ? { busId, update, ageMs: now - update.ts }
-          : { busId, update: null, ageMs: null };
-      }));
-    }, 100);
+    // TEMP dev-only counters; replaced by the honesty panel in Step 8.
+    if (!import.meta.env.DEV) return undefined;
 
-    return () => clearInterval(snapshotTimer);
-  }, [store]);
+    const counterTimer = setInterval(() => {
+      const received = store.totalReceived;
+      const published = publishCountRef.current;
+      console.log(
+        `[TEMP] ws msgs/sec: ${received - previousReceivedRef.current}, publishes/sec: ${published - previousPublishedRef.current}`,
+      );
+      previousReceivedRef.current = received;
+      previousPublishedRef.current = published;
+    }, 1000);
+
+    return () => clearInterval(counterTimer);
+  }, [store, publishCountRef]);
 
   useEffect(() => {
     let active = true;
@@ -100,7 +98,7 @@ export default function App() {
           WebSocket: <strong>{status}</strong>
         </p>
       </header>
-      <FleetTable snapshot={snapshot} />
+      <FleetTable snapshot={snapshot} now={now} />
     </main>
   );
 }
