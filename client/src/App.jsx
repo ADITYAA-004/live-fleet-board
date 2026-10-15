@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { Profiler, useEffect, useRef, useState } from "react";
+import { FleetMetrics } from "./components/FleetMetrics.jsx";
 import { FleetTable } from "./components/FleetTable.jsx";
 import { createFleetStore } from "./lib/fleetStore.js";
+import { createMetrics } from "./lib/metrics.js";
 import { useFleetSnapshot } from "./hooks/useFleetSnapshot.js";
 
 export default function App() {
@@ -8,26 +10,10 @@ export default function App() {
   const storeRef = useRef(null);
   if (storeRef.current === null) storeRef.current = createFleetStore();
   const store = storeRef.current;
-  const { snapshot, now, publishCountRef } = useFleetSnapshot(store);
-  const previousReceivedRef = useRef(store.totalReceived);
-  const previousPublishedRef = useRef(publishCountRef.current);
-
-  useEffect(() => {
-    // TEMP dev-only counters; replaced by the honesty panel in Step 8.
-    if (!import.meta.env.DEV) return undefined;
-
-    const counterTimer = setInterval(() => {
-      const received = store.totalReceived;
-      const published = publishCountRef.current;
-      console.log(
-        `[TEMP] ws msgs/sec: ${received - previousReceivedRef.current}, publishes/sec: ${published - previousPublishedRef.current}`,
-      );
-      previousReceivedRef.current = received;
-      previousPublishedRef.current = published;
-    }, 1000);
-
-    return () => clearInterval(counterTimer);
-  }, [store, publishCountRef]);
+  const metricsRef = useRef(null);
+  if (metricsRef.current === null) metricsRef.current = createMetrics({ now: () => Date.now() });
+  const metrics = metricsRef.current;
+  const { snapshot, metrics: metricSnapshot } = useFleetSnapshot(store, metrics);
 
   useEffect(() => {
     let active = true;
@@ -91,14 +77,20 @@ export default function App() {
   }, [store]);
 
   return (
-    <main className="debug-view">
-      <header className="board-header">
-        <h1>Live Fleet Board</h1>
-        <p className={`connection connection--${status}`}>
-          WebSocket: <strong>{status}</strong>
-        </p>
-      </header>
-      <FleetTable snapshot={snapshot} now={now} />
-    </main>
+    <Profiler
+      id="Live Fleet Board"
+      onRender={() => metrics.recordCommit(Date.now())}
+    >
+      <main className="debug-view">
+        <header className="board-header">
+          <h1>Live Fleet Board</h1>
+          <p className={`connection connection--${status}`}>
+            WebSocket: <strong>{status}</strong>
+          </p>
+        </header>
+        <FleetMetrics metrics={metricSnapshot} />
+        <FleetTable snapshot={snapshot} />
+      </main>
+    </Profiler>
   );
 }

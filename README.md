@@ -49,6 +49,17 @@ npm start
 
 `POST /burst` is a development-only endpoint and returns JSON indicating whether a burst started.
 
+## What the metrics mean
+
+- **Vehicles with data** counts buses with an accepted update; buses still showing `waiting…` are not counted.
+- **Incoming updates/sec** is calculated from changes to the store's `totalReceived` counter in a rolling one-second window. It is sampled only when the animation-frame publisher publishes, so the displayed value is an approximation between publishes. It includes received updates later rejected as stale or invalid.
+- **React commits/sec (FPS)** counts committed dashboard renders in the rolling second using React's Profiler. **Browser rAF callbacks/sec** separately counts animation frames offered by the browser. The repaint rate is a maximum cadence, not a promise to show every incoming update.
+- **Accepted**, **rejected stale**, and **rejected invalid** are cumulative store counters since the page loaded.
+- **Current max staleness** is the largest `now - ts` among buses with accepted data. **Peak max staleness · 10 s** is the highest sampled maximum during the last ten seconds. `STALE` appears above 1000 ms; ages from 500–1000 ms are amber. With no accepted data, age is unavailable rather than zero.
+- **Feed state** displays `BURST` when measured incoming rate exceeds 500 updates/sec; otherwise it displays `normal`.
+
+At normal speed each bus emits about two updates/sec, so displayed age naturally swings between 0 and about 500 ms. In this test setup the browser and server share one machine clock; if they ran on separate machines, clock skew would affect age measurements. If the socket disconnects, the render loop continues publishing ages and incoming rate falls to zero after the rolling window contains no new updates.
+
 ## Checks
 
 Run the test script:

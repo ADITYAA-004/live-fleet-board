@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createRenderLoop } from "../lib/renderLoop.js";
 
 const BUS_IDS = Array.from({ length: 30 }, (_, index) => (
@@ -7,30 +7,46 @@ const BUS_IDS = Array.from({ length: 30 }, (_, index) => (
 
 const makeWaitingSnapshot = () => BUS_IDS.map((busId) => ({ busId, update: null }));
 
-export function useFleetSnapshot(store) {
-  const [view, setView] = useState(() => ({ snapshot: makeWaitingSnapshot(), now: Date.now() }));
-  const publishCountRef = useRef(0);
+export function useFleetSnapshot(store, metrics) {
+  const [view, setView] = useState(() => ({
+    snapshot: makeWaitingSnapshot(),
+    metrics: null,
+  }));
 
   useEffect(() => {
     const loop = createRenderLoop({
       store,
       publish: (updates) => {
         const now = Date.now();
-        const snapshot = BUS_IDS.map((busId) => ({
-          busId,
-          update: updates.find((candidate) => candidate.busId === busId) ?? null,
-        }));
-        publishCountRef.current += 1;
-        setView({ snapshot, now });
+        const metricSnapshot = metrics.sample({
+          totalReceived: store.totalReceived,
+          totalAccepted: store.totalAccepted,
+          totalRejectedStale: store.totalRejectedStale,
+          totalRejectedInvalid: store.totalRejectedInvalid,
+          snapshot: updates,
+        }, now);
+        const agesByBus = new Map(metricSnapshot.busAges.map((entry) => [entry.busId, entry]));
+        const snapshot = BUS_IDS.map((busId) => {
+          const update = updates.find((candidate) => candidate.busId === busId) ?? null;
+          return {
+            busId,
+            update,
+            freshness: update ? agesByBus.get(busId) : null,
+          };
+        });
+        setView({ snapshot, metrics: metricSnapshot });
       },
-      raf: (callback) => window.requestAnimationFrame(callback),
+      raf: (callback) => window.requestAnimationFrame((timestamp) => {
+        metrics.recordRafCallback(Date.now());
+        callback(timestamp);
+      }),
       caf: (frameId) => window.cancelAnimationFrame(frameId),
       now: () => performance.now(),
     });
 
     loop.start();
     return () => loop.stop();
-  }, [store]);
+  }, [store, metrics]);
 
-  return { ...view, publishCountRef };
+  return view;
 }

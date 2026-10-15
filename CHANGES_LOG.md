@@ -17,7 +17,7 @@ Append-only: never edit or delete old entries.
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and the user's manual Chrome/Edge browser check passed; exact console rate values were not supplied. |
-| 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
+| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests, full test suite, and client build passed; browser panel behavior awaits user confirmation. |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
 | 10 | DECISIONS.md + demo prep + transcript | ⬜ Not started | | |
 
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:50] Step 8 — Measured honesty panel
+**Prompt summary:** Add framework-free fake-clock metric calculations, display measured feed/render/staleness values in the dashboard, mark stale buses, remove temporary console counters, document metric meaning, and verify with tests/build.
+**Files created:** `client/src/lib/metrics.js` — injected-clock calculators for rolling incoming rate, commit/rAF rates, counter summaries, bus ages, staleness classification, and ten-second peak; `client/src/lib/metrics.test.js` — fake-clock tests for the requested rate, threshold, peak, no-data, and commit cases; `client/src/components/FleetMetrics.jsx` — summary bar that displays the measured values.
+**Files modified:** `client/src/App.jsx` — removed Step 6 console counters, recorded dashboard commits with React Profiler, and placed the metric bar above the table; `client/src/hooks/useFleetSnapshot.js` — samples store counters and computes the dashboard snapshot only inside the existing rAF publish; `client/src/components/FleetTable.jsx` — displays returned ages and freshness labels without computing metric math; `client/src/style.css` — added metric panel and normal/amber/red age styles; `package.json` — included metrics tests in `npm test`; `README.md` — documented how metrics are measured and their clock/cadence limits; `CHANGES_LOG.md` — recorded Step 8 and updated status.
+**Files deleted:** none.
+**What changed (plain English):** The dashboard now shows buses with data, rolling received updates/sec, React commits/sec (FPS), browser rAF callbacks/sec, store counters, current and ten-second peak maximum staleness, and a BURST/normal indicator. Bus ages and severity are calculated with the same wall-clock sample for the summary and rows. Amber begins at 500 ms; ages above 1000 ms show a red `STALE` badge. Metrics are sampled inside the existing rAF publish; the WebSocket message handler still only parses and passes updates to the store.
+**Why / design reasoning:** Sampling store counters at publish time keeps WebSocket message handling free of React state and extra work. React Profiler records committed dashboard renders separately from raw browser frame callbacks, so the displayed rates reveal their difference. The render loop continues publishing while the socket is disconnected, letting age rise and the incoming rate decay to zero.
+**Tests run & REAL results:** The first `npm test` run had 23 passed and 1 failed because the repaint-window test expected two commits after both had aged out; I corrected the fake-clock boundary. Final `npm test` → 24 passed, 0 failed. The five metrics tests passed. In the same run, the burst integration test received 6,002 messages in 2.010 seconds (2,986.07 msgs/sec), saw 614 out-of-order frames, and recorded 614 stale rejects; the feed test received 181 messages in 3.007 seconds (60.19/sec). `npm run build --workspace=client` → Vite 8.3.4 transformed 22 modules and built successfully in 378ms. `git diff --check` → no whitespace errors (Git displayed LF-to-CRLF normalization notices).
+**Verified:** Framework-free Node import; fake-clock rolling rate and idle fall-to-zero; 499/500/1000/1001 ms classifications; peak retention/expiry; no-data exclusion; rolling commit and raw-frame event counts; complete test suite and client production build. The existing `client/src/lib/fleetStore.js` and server files were not changed.
+**Not verified:** I did not inspect the browser. The user should confirm normal/burst panel values, age colors and STALE text, and that the disconnected header, growing ages, and zero incoming rate remain visible when only the server stops.
+**Known issues / limitations:** Incoming rate is sampled at render publishes and interpolated to the one-second boundary, so it is an approximation between samples. Commit rate counts React Profiler commits, while rAF rate counts browser callbacks; neither guarantees every incoming update is visibly painted. Age assumes the browser and server clocks are shared or synchronized.
+**Deviations from spec:** None.
+**Next step:** Ask the user to confirm the Step 8 browser panel and disconnect behavior, then continue to Step 9 — load/burst test and fixes.
 
 ### [2026-10-16 00:44] Step 7 follow-up — Manual browser check confirmed
 **Prompt summary:** Record the user's manual Chrome/Edge confirmation of Step 7 burst behavior and clear the browser-check pending note; make no application changes.

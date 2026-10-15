@@ -1,7 +1,7 @@
 import { memo } from "react";
 
-const FleetRow = memo(function FleetRow({ bus, now }) {
-  const { busId, update } = bus;
+const FleetRow = memo(function FleetRow({ bus }) {
+  const { busId, update, freshness } = bus;
 
   return (
     <tr>
@@ -16,7 +16,12 @@ const FleetRow = memo(function FleetRow({ bus, now }) {
             </span>
           </td>
           <td>{update.seq}</td>
-          <td>{now - update.ts}</td>
+          <td>
+            <span className={`update-age update-age--${freshness.level}`}>
+              {freshness.ageMs} ms
+              {freshness.badge && <strong className="stale-badge">{freshness.badge}</strong>}
+            </span>
+          </td>
         </>
       ) : (
         <td colSpan="5" className="waiting">waiting…</td>
@@ -27,12 +32,12 @@ const FleetRow = memo(function FleetRow({ bus, now }) {
   const sameBus = previous.bus.busId === next.bus.busId;
   const sameSequence = previous.bus.update?.seq === next.bus.update?.seq;
   const sameRun = previous.bus.update?.runId === next.bus.update?.runId;
-  // Compare runId because restart resets seq; populated rows compare frame time so ages stay fresh.
-  const sameAge = previous.bus.update === null || previous.now === next.now;
+  // Compare runId because restart resets seq; returned per-frame ages must keep updating.
+  const sameAge = previous.bus.freshness?.ageMs === next.bus.freshness?.ageMs;
   return sameBus && sameRun && sameSequence && sameAge;
 });
 
-export function FleetTable({ snapshot, now }) {
+export function FleetTable({ snapshot }) {
   const sortedBuses = [...snapshot].sort((left, right) => left.busId.localeCompare(right.busId));
 
   return (
@@ -49,7 +54,7 @@ export function FleetTable({ snapshot, now }) {
           </tr>
         </thead>
         <tbody>
-          {sortedBuses.map((bus) => <FleetRow key={bus.busId} bus={bus} now={now} />)}
+          {sortedBuses.map((bus) => <FleetRow key={bus.busId} bus={bus} />)}
         </tbody>
       </table>
     </div>
