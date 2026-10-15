@@ -1,8 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FleetTable } from "./components/FleetTable.jsx";
+
+const BUS_IDS = Array.from({ length: 30 }, (_, index) => (
+  `BUS-${String(index + 1).padStart(2, "0")}`
+));
+
+const emptySnapshot = () => BUS_IDS.map((busId) => ({ busId, update: null, ageMs: null }));
 
 export default function App() {
   const [status, setStatus] = useState("disconnected");
-  const [messages, setMessages] = useState([]);
+  const [snapshot, setSnapshot] = useState(emptySnapshot);
+  const latestByBus = useRef(new Map());
+
+  useEffect(() => {
+    // TEMP – replaced by fleetStore + rAF in Steps 5/6
+    const snapshotTimer = setInterval(() => {
+      const now = Date.now();
+      setSnapshot(BUS_IDS.map((busId) => {
+        const update = latestByBus.current.get(busId);
+        return update
+          ? { busId, update, ageMs: now - update.ts }
+          : { busId, update: null, ageMs: null };
+      }));
+    }, 100);
+
+    return () => clearInterval(snapshotTimer);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -42,8 +65,12 @@ export default function App() {
       };
       socket.onmessage = (event) => {
         if (!active) return;
-        // TEMP DEBUG VIEW – replaced in Step 5/6
-        setMessages((current) => [...current, String(event.data)].slice(-10));
+        try {
+          const update = JSON.parse(event.data);
+          latestByBus.current.set(update.busId, update);
+        } catch {
+          // Ignore malformed frames; valid simulator frames are stored without a React update.
+        }
       };
       socket.onerror = () => {
         socket.close();
@@ -65,20 +92,13 @@ export default function App() {
 
   return (
     <main className="debug-view">
-      <p className="eyebrow">TEMPORARY TELEMETRY DEBUG VIEW</p>
-      <h1>Live Fleet Board</h1>
-      <p className={`connection connection--${status}`}>
-        WebSocket: <strong>{status}</strong>
-      </p>
-      <section aria-labelledby="messages-heading">
-        <h2 id="messages-heading">Last 10 raw messages</h2>
-        <ol className="message-list">
-          {messages.map((message, index) => (
-            <li key={`${index}-${message}`}><pre>{message}</pre></li>
-          ))}
-        </ol>
-        {messages.length === 0 && <p className="empty-state">Waiting for telemetry…</p>}
-      </section>
+      <header className="board-header">
+        <h1>Live Fleet Board</h1>
+        <p className={`connection connection--${status}`}>
+          WebSocket: <strong>{status}</strong>
+        </p>
+      </header>
+      <FleetTable snapshot={snapshot} />
     </main>
   );
 }

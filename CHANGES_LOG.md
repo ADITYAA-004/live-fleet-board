@@ -13,7 +13,7 @@ Append-only: never edit or delete old entries.
 | 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
-| 4 | React table (normal traffic) | ⬜ Not started | | |
+| 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests and client build passed; manual browser confirmation remains pending. |
 | 5 | Sequence guard + latest-state map | ⬜ Not started | | |
 | 6 | requestAnimationFrame render loop | ⬜ Not started | | |
 | 7 | Auto burst + out-of-order + door transitions | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-15 23:11] Step 4 — Fleet table
+**Prompt summary:** Replace the temporary raw-message view with a sorted 30-bus table showing position, speed, door, sequence, and update age, using a temporary 100 ms snapshot publisher while preserving WebSocket reconnect behavior.
+**Files created:** `client/src/components/FleetTable.jsx` — presentational fleet table and memoized row component.
+**Files modified:** `client/src/App.jsx` — stores incoming updates in a ref-held Map and publishes snapshots every 100 ms; `client/src/style.css` — minimal table and door-state styling; `CHANGES_LOG.md` — recorded Step 4 and updated its status.
+**Files deleted:** none.
+**What changed (plain English):** Replaced the last-ten raw-message view with a table that always lists BUS-01 through BUS-30 in ID order. Rows show position and speed to one decimal place, OPEN/CLOSED text labels with distinct colors, last sequence, and age calculated as `Date.now() - ts`. Rows without data show “waiting…”. The WebSocket message handler only parses and writes to the Map; a temporary interval publishes snapshots and refreshes age display.
+**Why / design reasoning:** The temporary Map and interval meet this step's simpler rendering requirement while keeping React state updates out of the WebSocket message handler. Memoized rows compare sequence and age so changed telemetry and the live age display are reflected.
+**Tests run & REAL results:** `npm test` → 3 tests passed, 0 failed; feed test received 180 messages in 3.012 seconds (59.76/sec), with all 30 buses and consecutive per-bus sequences. `npm run build --workspace=client` → Vite 8.3.4 transformed 17 modules and built successfully in 405ms. `git diff --check` → no whitespace errors (Git displayed LF-to-CRLF normalization notices).
+**Verified:** Existing automated tests still pass and the client bundle builds. Source uses 30 stable IDs, computes the requested fields, and preserves the Step 3 reconnect sequence.
+**Not verified:** I did not open a browser. Visual confirmation of all 30 rows, changing values, colored/text door labels, and an observed door change within about 30 seconds is pending the user's manual check.
+**Known issues / limitations:** No sequence guard, requestAnimationFrame loop, or metrics panel was added, as requested; the 100 ms publisher is temporary for Steps 5/6.
+**Deviations from spec:** None.
+**Next step:** Ask the user to confirm the Step 4 browser view and door transition, then continue to Step 5.
 
 ### [2026-10-15 23:08] Step 3 follow-up — Manual browser check confirmed
 **Prompt summary:** Record the user's Chrome/Edge confirmation of the Step 3 live feed, disconnect, and reconnect behavior, plus the harmless Vite proxy message; make no application changes.
