@@ -16,7 +16,7 @@ Append-only: never edit or delete old entries.
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, and client build passed; browser behavior awaits user confirmation. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
-| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated WebSocket burst, delivery reordering, stale rejection, sequence/timestamp, and timer-cleanup checks passed; browser confirmation is pending. |
+| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and the user's manual Chrome/Edge browser check passed; exact console rate values were not supplied. |
 | 8 | Honesty panel (measured metrics) | ⬜ Not started | | |
 | 9 | Load/burst test + fixes | ⬜ Not started | | |
 | 10 | DECISIONS.md + demo prep + transcript | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 00:44] Step 7 follow-up — Manual browser check confirmed
+**Prompt summary:** Record the user's manual Chrome/Edge confirmation of Step 7 burst behavior and clear the browser-check pending note; make no application changes.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the manual browser confirmation and updated Step 7's status note.
+**Files deleted:** none.
+**What changed (plain English):** The user confirmed that the fleet table kept updating during a burst and the server log showed the injected out-of-order BUS-07 line. The three console metric slots were literal `<REAL NUMBER>` placeholders, so their numeric values were not recorded.
+**Why / design reasoning:** The session record distinguishes the user's observed behavior from metric values that were absent; no rates are inferred or invented.
+**Tests run & REAL results:** No tests or commands were run; this documentation-only update records the user's browser report.
+**Verified:** Per the user, the Chrome/Edge browser check passed, the table kept updating during the burst, and the server log showed the BUS-07 injected out-of-order line. The user provided fields for normal `ws msgs/sec`, burst peak `ws msgs/sec`, and peak `publishes/sec`, but each contained `<REAL NUMBER>` instead of a value.
+**Not verified:** I did not independently inspect the browser or obtain numeric rate readings.
+**Known issues / limitations:** Exact normal and peak console rates remain unknown because the submitted fields contained placeholders.
+**Deviations from spec:** None.
+**Next step:** Step 8 — honesty panel (measured metrics).
 
 ### [2026-10-16 00:37] Step 7 — Burst generation and out-of-order delivery
 **Prompt summary:** Add an elapsed-time catch-up burst scheduler, automatic and manual burst triggers, bounded out-of-order WebSocket delivery, and a deterministic stale-OPEN case without changing the client freshness guard.
