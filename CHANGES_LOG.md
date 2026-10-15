@@ -12,7 +12,7 @@ Append-only: never edit or delete old entries.
 | 0 | Kickoff / read rules | ✅ Done | 2026-10-15 | Required docs read; project files moved into a dedicated repository folder. |
 | 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
-| 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test and client build passed; browser disconnect/reconnect check is pending user confirmation. |
+| 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ⬜ Not started | | |
 | 5 | Sequence guard + latest-state map | ⬜ Not started | | |
 | 6 | requestAnimationFrame render loop | ⬜ Not started | | |
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-15 23:08] Step 3 follow-up — Manual browser check confirmed
+**Prompt summary:** Record the user's Chrome/Edge confirmation of the Step 3 live feed, disconnect, and reconnect behavior, plus the harmless Vite proxy message; make no application changes.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the manual browser confirmation, updated the Step Status note, and documented the reported proxy message.
+**Files deleted:** none.
+**What changed (plain English):** The user confirmed that `http://localhost:5173` showed connected status and scrolling raw messages, displayed disconnected after stopping only the server, and reconnected with messages resuming after the server restarted without a page refresh.
+**Why / design reasoning:** This completes the manual browser check that was pending after the automated feed test and client build.
+**Tests run & REAL results:** No commands or automated tests were run for this documentation-only task. Manual browser results were reported by the user, not independently observed in this session.
+**Verified:** User-confirmed Chrome/Edge behavior: connected feed, server-only disconnect, and automatic reconnect after server restart without refresh.
+**Not verified:** I did not independently reproduce the browser sequence.
+**Known issues / limitations:** The user reported a Vite `ws proxy error: write ECONNABORTED` message when a browser WebSocket connection closed. The user described it as harmless; no impact was reported.
+**Deviations from spec:** None.
+**Next step:** Step 4 — React table (normal traffic).
 
 ### [2026-10-15 22:51] Step 3 — WebSocket server and minimal client
 **Prompt summary:** Connect simulator updates to a real `/feed` WebSocket, build a temporary React message viewer with reconnect behavior, add a three-second feed test, and provide manual browser steps without claiming to have run them.
