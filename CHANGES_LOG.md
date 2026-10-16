@@ -18,7 +18,7 @@ Append-only: never edit or delete old entries.
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
-| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user screen recording confirms browser metrics, with recording starting mid-burst. |
+| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
 | 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; video and full transcript are still for the user to add. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 13:49] Step 9 follow-up — Automatic burst confirmed from server log
+**Prompt summary:** Mark the Automatic burst acceptance test PASS using the user's server log, recorded burst rates, headless timing results, and reconnect observation; document that the automatic page-side transition was not separately captured.
+**Files created:** none.
+**Files modified:** `docs/TEST_RESULTS.md` — changed Automatic burst from PENDING-BROWSER to PASS and recorded the evidence and remaining page-side limitation; `CHANGES_LOG.md` — added this follow-up and updated Step 9's status note.
+**Files deleted:** none. `PROJECT_CONTEXT.md.pdf` remains untouched and untracked.
+**What changed (plain English):** The user reported that their terminal logged `[burst] first automatic burst scheduled in 45000ms after first client connection`, then `[burst] started #1: 6000ms at 100 updates/sec/bus target` about 45 seconds later (about 34 one-second log lines), with no manual trigger. Burst rates were 2,978, 3,048, 2,990, 3,049, and 3,031 msgs/sec. A client disconnect/reconnect during that run did not reschedule the burst. The load test independently measured automatic start at 45.00 s and 45.02 s.
+**Why / design reasoning:** Automatic timing is evidenced by the server log and repeated headless timing measurements. The manual page recording of a burst was triggered manually and does not separately demonstrate the page during an automatically triggered burst, so that limitation remains explicit.
+**Tests run & REAL results:** No automated tests were run; this task records the user's terminal log and previously measured load-test results. `git diff --check` → no whitespace errors; Git printed its configured LF-to-CRLF normalization notices.
+**Verified:** User-reported server terminal schedule/start sequence without manual trigger, the five measured server burst rates, no reschedule after disconnect/reconnect, and load-test timing of 45.00 s and 45.02 s. `docs/TEST_RESULTS.md` now marks Automatic burst PASS.
+**Not verified:** The browser page's view of the automatic first-burst transition was not separately recorded. The existing page recording shows a manually started burst.
+**Known issues / limitations:** Browser-side automatic start timing remains unrecorded; server logs and headless load-test measurements establish the trigger behavior and timing.
+**Deviations from spec:** None. No application code was changed.
+**Next step:** User may include the server-log automatic-trigger sequence in the demo video; no additional code work is needed for this acceptance item.
 
 ### [2026-10-16 13:46] Steps 5, 7, 8, 9 follow-up — Browser readings confirmed
 **Prompt summary:** Record the user's Chrome screen-recording readings for burst and normal operation, mark browser evidence for Normal operation, Freshness, Bounded rendering, and Honesty panel as PASS, clarify the repaint-rate bound, and preserve the unrelated PDF.
