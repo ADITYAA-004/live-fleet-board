@@ -56,7 +56,8 @@ latest-state map, and render that map on the browser's animation frame.
       scripts/     load-test.js
 
 Root npm scripts (keep these names): `npm start` (server + client together), `npm test` (unit tests),
-`npm run load-test` (headless burst test against the running server).
+`npm run load-test` (headless burst test that starts an isolated server by default; set `LOAD_TEST_URL`
+to test a running server instead).
 
 ## 6. MANDATORY: change tracking
 

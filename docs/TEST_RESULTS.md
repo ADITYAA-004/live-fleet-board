@@ -82,3 +82,17 @@ The automatic page-side transition was not separately recorded in the prior brow
 ## Submission status
 
 The source, scripts, README, `DECISIONS.md`, and three exported Codex session transcripts are present. The transcript directory also contains two Step 0/1 setup notes; the three exported transcript files contain 158 User/Assistant Markdown headings (148 + 5 + 5). A prior log entry reported 156; the current file count is the corrected inventory. The required 5–10 minute video remains **PENDING USER**. Do not treat this project as fully submitted until that video is recorded and added.
+
+## Final-submission preparation verification — 2026-10-16
+
+Fresh verification run for the final-submission preparation task. It supersedes the previous documentation-finalization run as the latest automated result; earlier Step 9 and prior audit results above are retained as historical records.
+
+- Environment: Node.js `v24.22.0`, npm `11.19.1`.
+- `npm test` → PASS, 24 passed / 0 failed in 9.615 s. Normal feed: 180 messages in 3.003 s (59.94/sec). Short burst integration: 6,002 messages in 2.011 s (2,984.58/sec), with 627 out-of-order arrivals and 627 stale rejects.
+- `npm run build --workspace=client` → PASS; Vite 8.3.4 transformed 22 modules and built in 352 ms.
+- `npm run load-test` → PASS. Baseline: 600 messages in 10.01 s (59.94/sec), all 30 buses, no normal-mode reordering. Three burst averages were 2,992.85/sec (peak 3,013), 2,995.01/sec (peak 3,049), and 2,998.33/sec (peak 3,024). Out-of-order/stale rejects by burst were 1,973, 2,015, and 1,936 (5,924 total); displayed regressions/resurrections were 0; BUS-07 finished CLOSED at seq 1,826.
+- Freshness sampling: 106, 104, and 104 samples across the bursts. All 30 buses remained at or under 1,000 ms; the worst sampled per-bus maximum was 432 ms on BUS-10, and p99 across samples was 31 ms. Each burst ended with 30 store entries and producer/store sequence convergence in 152.3 ms, 155.2 ms, and 92.3 ms.
+- Three-burst soak: heap used `8,782 KiB before -> 9,904 KiB after` (reported growth `1,123 KiB`), within the `12,288 KiB` allowance. Shutdown cleanup passed.
+- Automatic timer: first burst began 45.01 s after client 1 connected. Client 2 connected 20.02 s after client 1; the burst began 25.00 s after client 2, confirming it did not restart the timer.
+
+No browser was opened and no clean-clone install was repeated in this run. Prior browser readings in this report were supplied by the user; they remain distinct from these headless test results. The automatic page-side transition has not been separately recorded. No video is present, so Step 10 remains in progress.

@@ -10,7 +10,7 @@ Append-only: never edit or delete old entries.
 | # | Step | Status | Date done | Notes |
 |---|------|--------|-----------|-------|
 | 0 | Kickoff / read rules | ✅ Done | 2026-10-15 | Required docs read; project files moved into a dedicated repository folder. |
-| 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User should still visually confirm the rendered placeholder in a browser. |
+| 1 | Project structure + README | ✅ Done | 2026-10-15 | Node v24.22.0; install and runtime HTTP checks passed. User later confirmed the placeholder and live page behavior in browser checks for Steps 3 and 4. |
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
-| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-16 | Written docs and transcript inventory reconciled against the actual Step 1 AI suggestion and current files; the required 5–10 minute video remains pending from the user. |
+| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-16 | Written docs, final checklist, video staging instructions, and transcript inventory reconciled against source and current evidence; the required 5–10 minute video remains pending from the user. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -63,6 +63,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 23:38] Step 10 — Final submission materials prepared; video pending
+**Prompt summary:** Inspect the final submission request, verify the project and source requirements, complete the submission docs/checklist, run tests/build/load-test, and prepare a normal GitHub publication without fabricating the video.
+**Files created:** `docs/FINAL_SUBMISSION_CHECKLIST.md` — requirement-by-requirement status and evidence, reproduction commands, limitations, and manual video checklist; `submission/README.md` — staging path, filename, delivery guidance, and required video topics.
+**Files modified:** `.gitignore` — ignore only the planned `submission/live-fleet-board-demo.mp4`; `AGENTS.md` — document actual default and `LOAD_TEST_URL` behavior of the load-test command; `DECISIONS.md` — use the latest measured results; `DEMO_SCRIPT.md` — practical 8–9 minute outline using the real Step 1 AI Suggestions Log entry; `docs/PROJECT_CONTEXT.md` — current run numbers, transcript inventory, prior pushed HEAD, submission status, and manual actions; `docs/TEST_RESULTS.md` — add this task's fresh real results; `CHANGES_LOG.md` — record work, keep Step 10 in progress, and clear the stale Step 1 browser-confirmation note.
+**Files deleted:** none.
+**What changed (plain English):** The final checklist now distinguishes tested implementation from user-reported browser evidence and the still-unrecorded automatic page-side burst view. The demo script explains the actual logged AI suggestion: the planning assistant blamed sandbox networking, but the user's PC received HTTP 200 and Node 23.1.0 rejected the certificate; the eventual fix kept TLS verification enabled. Transcript inventory remains three exported sessions with 158 speaker headings plus two setup notes. No video or placeholder was created; the intended MP4 path is Git-ignored.
+**Why / design reasoning:** The submission needs actionable evidence for each requirement while keeping historical test runs, current automated results, manual observations, and remaining work distinct.
+**Tests run & REAL results:** Node `v24.22.0`, npm `11.19.1`. `npm test` → 24 passed, 0 failed in 9.615 s; normal feed 180/3.003 s (59.94/sec), short burst 6,002/2.011 s (2,984.58/sec), 627 out-of-order arrivals and 627 stale rejects. `npm run build --workspace=client` → PASS; Vite 8.3.4, 22 modules, 352 ms. `npm run load-test` → PASS; baseline 59.94/sec; three burst averages 2,992.85, 2,995.01, 2,998.33/sec (peaks 3,013, 3,049, 3,024/sec); 5,924 stale rejects; zero state regressions; every bus ≤1,000 ms (worst 432 ms, BUS-10; p99 31 ms); store size 30; reported heap growth 1,123 KiB within 12,288 KiB; first automatic burst 45.01 s after client 1, with client 2 at +20.02 s and not resetting the timer; shutdown cleanup passed. `git diff --check` passed; the final review found only the listed docs/rules files and the two planned new documentation files (Git printed LF-to-CRLF normalization notices).
+**Verified:** Inspected the current request, project docs, original source doc, actual five transcript-directory files, branch/upstream/remote, and the intended GitHub repository. The original DOCX blob hash still matches the initial source blob; transcript files are unchanged. The generated video path is ignored and no MP4 exists. Application source was not modified. Browser values in the docs remain user-reported; the automatic page-side transition is not separately recorded.
+**Not verified:** No browser session, fresh `npm install`, clean-clone run, or video recording occurred during this task. The prior clean-clone check remains historical evidence only.
+**Known issues / limitations:** Step 10 remains in progress until the 5–10 minute video is recorded and delivered. User needs to capture the automatic burst transition on the page if practical and submit the real video outside GitHub.
+**Deviations from spec:** None. No application code changed. Documentation changes are intended for a normal `master` commit and push only after reviewing the final diff.
+**Next step:** Review diff/status, commit documentation with a no-reply identity, push normally to `origin/master`, verify remote synchronization, then record and deliver the video.
 
 ### [2026-10-16 23:13] Step 10 — Submission documents reconciled; video pending
 **Prompt summary:** Finish Step 10 documentation using the actual AI Suggestions Log entry, original source document, repository evidence, and transcript files; run the automated checks and commit only if they pass.

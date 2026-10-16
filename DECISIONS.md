@@ -8,7 +8,7 @@
 - **Measured metrics and a headless load test.** The dashboard shows measured feed, render, frame, and age values; the load test exercises the same store guard and reports state-store age separately from browser paint.
 - **The requested npm workspace stack.** The server uses `ws`; the client uses React and Vite; `npm start` starts both together. The Vite development proxy forwards `/feed` to the server.
 
-The Step 9 run recorded in the original test report measured a normal feed of 60.10 updates/sec and burst averages of 2,997.84, 2,995.34, and 2,995.34 messages/sec. The three bursts produced 5,826 stale rejections and zero displayed state regressions or door resurrections. The later documentation-finalization rerun measured 59.98 updates/sec at baseline and burst averages of 2,992.85, 2,996.84, and 2,993.85 messages/sec, with 5,768 stale rejections and zero regressions. These are headless-client measurements, not browser paint timings; details and run separation are in `docs/TEST_RESULTS.md`.
+The latest final-preparation run measured a normal feed of 59.94 updates/sec and burst averages of 2,992.85, 2,995.01, and 2,998.33 messages/sec. The bursts produced 5,924 stale rejections and zero displayed state regressions. These are headless-client measurements, not browser paint timings; historical run results remain separately labelled in `docs/TEST_RESULTS.md`.
 
 ## Alternatives considered and rejected
 
@@ -24,7 +24,7 @@ The Step 9 run recorded in the original test report measured a normal feed of 60
 
 The project has two npm workspaces, server and client, plus root scripts for startup, unit tests, and the load test. `npm install` installs the workspace dependencies; `npm start` runs the server and Vite client together. A clean clone of the Step 9 tree installed 42 packages in 11 seconds. No database, authentication service, or deployment layer is required for this simulation.
 
-The main complexity is coordinating simulator production time, burst delivery order, client freshness checks, and rendering without retaining a backlog. This is covered by direct store tests, fake-clock/fake-rAF tests, WebSocket integration tests, and the load test. The Step 9 run observed a 1,134 KiB heap increase; the documentation-finalization rerun observed 1,122 KiB, both within the documented 12,288 KiB allowance. These are evidence for those runs, not a general memory guarantee.
+The main complexity is coordinating simulator production time, burst delivery order, client freshness checks, and rendering without retaining a backlog. This is covered by direct store tests, fake-clock/fake-rAF tests, WebSocket integration tests, and the load test. The latest three-burst soak observed a 1,123 KiB heap increase, within the 12,288 KiB allowance. This is evidence for that run, not a general memory guarantee.
 
 ## Trade-offs
 

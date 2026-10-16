@@ -4,9 +4,9 @@ Updated: 2026-10-16. Project root: `C:\Users\adity\OneDrive\Desktop\busfleet`.
 
 ## Current state
 
-Steps 0–9 are complete according to the Step Status table and their recorded evidence in `CHANGES_LOG.md`. The app has a Node simulator, a WebSocket server, a React/Vite dashboard, a per-bus sequence guard and latest-state store, a controlled `requestAnimationFrame` publish loop, measured dashboard metrics, and a headless load test. Step 10's written submission documents have been reconciled in this task. The required demo video is still pending, so the project is not fully submitted and Step 10 remains in progress.
+Steps 0–9 are complete according to the Step Status table and their recorded evidence in `CHANGES_LOG.md`. The app has a Node simulator, a WebSocket server, a React/Vite dashboard, a per-bus sequence guard and latest-state store, a controlled `requestAnimationFrame` publish loop, measured dashboard metrics, and a headless load test. Step 10's written submission documents and checklist have been prepared. The required demo video is still pending, so the project is not fully submitted and Step 10 remains in progress.
 
-No application code was changed in the documentation-finalization task.
+No application code was changed in the final-submission preparation task.
 
 ## Latest automated verification
 
@@ -14,21 +14,21 @@ Environment: Node.js `v24.22.0`, npm `11.19.1`.
 
 | Command | Result |
 |---|---|
-| `npm test` | PASS — 24 passed, 0 failed; duration 9.816 s. The normal feed test received 180 messages in 3.003 s (59.94/sec). The 2-second burst integration test received 6,002 messages in 2.008 s (2,989.04/sec), with 630 out-of-order frames and 630 stale rejects. |
-| `npm run build --workspace=client` | PASS — Vite 8.3.4 transformed 22 modules and built in 386 ms. |
+| `npm test` | PASS — 24 passed, 0 failed; duration 9.615 s. The normal feed test received 180 messages in 3.003 s (59.94/sec). The 2-second burst integration test received 6,002 messages in 2.011 s (2,984.58/sec), with 627 out-of-order frames and 627 stale rejects. |
+| `npm run build --workspace=client` | PASS — Vite 8.3.4 transformed 22 modules and built in 352 ms. |
 | `npm run load-test` | PASS — detailed current run below. |
 
 ### Current load-test run
 
-- Baseline: 600 messages in 10.00 s (59.98/sec), all 30 buses, zero normal-mode reorder.
-- Burst averages: 2,992.85/sec, 2,996.84/sec, and 2,993.85/sec; respective measured peaks: 3,027/sec, 3,012/sec, and 3,022/sec.
-- Stale rejects: 1,951 + 1,939 + 1,878 = 5,768. Displayed sequence regressions/resurrections: 0. BUS-07 ended CLOSED at seq 1,826.
-- Freshness: all 30 buses stayed within 1,000 ms; worst sampled per-bus maximum was 49.0 ms (BUS-01); p99 of sampled bus ages was 30.0 ms. These are headless store-age samples, not paint measurements.
-- Store and soak: exactly 30 entries remained. Forced-GC heap used rose from 8,792 KiB to 9,914 KiB (+1,122 KiB), within the 12,288 KiB allowance.
-- Automatic timing: first burst began 45.00 s after client 1 connected. Client 2 connected 20.01 s after client 1; the burst began 24.99 s after client 2, confirming the later client did not reset the timer.
+- Baseline: 600 messages in 10.01 s (59.94/sec), all 30 buses, zero normal-mode reorder.
+- Burst averages: 2,992.85/sec, 2,995.01/sec, and 2,998.33/sec; respective measured peaks: 3,013/sec, 3,049/sec, and 3,024/sec.
+- Stale rejects: 1,973 + 2,015 + 1,936 = 5,924. Displayed sequence regressions/resurrections: 0. BUS-07 ended CLOSED at seq 1,826.
+- Freshness: all 30 buses stayed within 1,000 ms; worst sampled per-bus maximum was 432 ms (BUS-10); p99 of sampled bus ages was 31 ms. These are headless store-age samples, not paint measurements.
+- Store and soak: exactly 30 entries remained. Forced-GC heap used rose from 8,782 KiB to 9,904 KiB (reported growth 1,123 KiB), within the 12,288 KiB allowance.
+- Automatic timing: first burst began 45.01 s after client 1 connected. Client 2 connected 20.02 s after client 1; the burst began 25.00 s after client 2, confirming the later client did not reset the timer.
 - Shutdown: local server, simulator, and scheduler timers were cleared.
 
-These values are from the documentation-finalization rerun. Earlier Step 9 values in `docs/TEST_RESULTS.md` remain as historical results from that earlier run.
+These values are from the final-submission preparation run on 2026-10-16. Earlier Step 9 and documentation-audit values in `docs/TEST_RESULTS.md` remain as historical results from their respective runs.
 
 ## Browser evidence and limits
 
@@ -57,7 +57,7 @@ The exported sessions include the Step 0–10 development conversation and the l
 
 ## Current repository and milestone history
 
-The original `docs/SOURCE_OF_TRUTH.docx` is present and unchanged from its initial Git blob (`7cf3168c4a44ad86060a2a74b7e9c1a5719552e8`). The branch is `master`; the existing HEAD before this documentation-finalization commit was `e009f29 Record GitHub publication`. The milestone hashes below are the current post-redaction history, not the earlier pre-rewrite hashes.
+The original `docs/SOURCE_OF_TRUTH.docx` is present and unchanged from its initial Git blob (`7cf3168c4a44ad86060a2a74b7e9c1a5719552e8`). The branch is `master`; the pushed HEAD before this final-submission preparation was `832fad8 docs: finalize submission documentation`. The milestone hashes below are the current post-redaction history, not the earlier pre-rewrite hashes.
 
 | Step | Current commit(s) |
 |---|---|
@@ -71,7 +71,7 @@ The original `docs/SOURCE_OF_TRUTH.docx` is present and unchanged from its initi
 | 7 | `f1c8c92`, `b88d0f2` |
 | 8 | `22bbe11`, `e8b90d3` |
 | 9 | `31d5b1b` |
-| 10 written preparation | `0d93e17` |
+| 10 written preparation | `0d93e17`, `832fad8` |
 
 Subsequent commits recorded browser readings, automatic-burst confirmation, the AI suggestion, transcript export/redaction, and GitHub publication; see `git log --oneline` and `CHANGES_LOG.md` for those follow-ups.
 
@@ -84,10 +84,11 @@ Subsequent commits recorded browser readings, automatic-burst confirmation, the 
 | `DECISIONS.md` | DONE | Chosen design, alternatives, costs, trade-offs, assumptions, scale risks and next steps are documented. |
 | 5–10 minute video answering the four questions | PENDING USER | Record it using `DEMO_SCRIPT.md`; the video is not present in the repository. |
 | AI chat transcript used during development | PRESENT | Three exported session files with 158 speaker headings, plus two setup notes; see inventory above. This is the actual archived material, not a reconstructed transcript. |
+| Final submission checklist and video staging instructions | PREPARED | `docs/FINAL_SUBMISSION_CHECKLIST.md` lists evidence and manual work; `submission/README.md` gives the video filename and delivery guidance. The MP4 is absent and ignored by Git. |
 
 ## Manual actions still required
 
-1. Record the 5–10 minute video using `DEMO_SCRIPT.md`. Show normal traffic, the automatic burst timing if practical, a manual burst, the out-of-order BUS-07 server line and stale count, measured panel values, server-only disconnect behavior, and the test/load-test commands.
+1. Record the 5–10 minute video using `DEMO_SCRIPT.md`. Show normal traffic, the automatic burst timing, a manual burst, the out-of-order BUS-07 server line and stale count, measured panel values, server-only disconnect behavior, and the test/load-test commands.
 2. In the AI segment, use only the Step 1 entry in the AI Suggestions Log: explain that the network diagnosis was wrong, the PC reached the registry, the actual error was certificate verification under Node 23.1.0, and the fix preserved TLS verification.
 3. Add the video file or submission link to the required submission location and confirm the final submission checklist with it included.
 
