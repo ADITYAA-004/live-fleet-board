@@ -14,12 +14,12 @@ Append-only: never edit or delete old entries.
 | 2 | Node.js simulator | ✅ Done | 2026-10-15 | Simulator, update/test harnesses, and 35-second rate/door-transition check passed. |
 | 3 | WebSocket server + minimal client | ✅ Done | 2026-10-15 | Feed test, client build, and user's manual browser disconnect/reconnect check passed. |
 | 4 | React table (normal traffic) | ✅ Done | 2026-10-15 | Tests, client build, and user's manual browser check passed. |
-| 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests, full test suite, client build, and user's manual Chrome/Edge browser check for Steps 5, 7, and 8 passed; detailed metric values were placeholders. |
+| 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests and manual browser evidence confirm stale updates do not resurrect old state; current burst/normal readings are recorded in the latest browser follow-up. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
-| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user's manual Chrome/Edge browser check passed; table updated during burst and server logged injected BUS-07 line. Exact metrics were placeholders. |
-| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests, full test suite, client build, and user's manual Chrome/Edge browser check passed; detailed metric and disconnect values were placeholders. |
-| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root test suite, three-burst load/soak, 45-second automatic timing, and startup from a clone of the committed tree passed. Browser repaint and honesty-panel readings remain pending because supplied metric values were placeholders. |
-| 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; video and full transcript are still for the user to add. Browser metric readings remain pending because the supplied values were placeholders. |
+| 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
+| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
+| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user screen recording confirms browser metrics, with recording starting mid-burst. |
+| 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; video and full transcript are still for the user to add. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -62,6 +62,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 13:46] Steps 5, 7, 8, 9 follow-up — Browser readings confirmed
+**Prompt summary:** Record the user's Chrome screen-recording readings for burst and normal operation, mark browser evidence for Normal operation, Freshness, Bounded rendering, and Honesty panel as PASS, clarify the repaint-rate bound, and preserve the unrelated PDF.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — added this manual-evidence follow-up and refreshed Step Status notes; `docs/TEST_RESULTS.md` — replaced the four browser-pending acceptance rows with user-reported values, clarified the rAF bound, and updated browser evidence/limitations; `docs/PROJECT_CONTEXT.md` — replaced the stale pending-browser summary with current evidence and remaining limits.
+**Files deleted:** none. `PROJECT_CONTEXT.md.pdf` remains untouched and untracked.
+**What changed (plain English):** The user supplied actual screen-recording values: during a burst, incoming rate read 2,525 then 1,281 updates/sec as the burst tailed off; React commits read 78 then 70/sec; browser rAF read 121/sec; current maximum staleness read 201 then 481 ms; the ten-second peak read 502 ms. Afterward, normal traffic read 60–61 updates/sec, React commits 58–60/sec, rAF 116–121/sec, current maximum staleness 470–497 ms, and ten-second peak maximum staleness 502–508 ms. All 30 buses kept updating and none showed STALE. The recording began mid-burst, so the on-screen 2,525/sec reading is not represented as the burst's overall peak; approximately 3,000/sec is attributed to server logs and the load test.
+**Why / design reasoning:** React commits are bounded by the animation frames the browser offers, not by an assumed 60 commits/sec. In the recorded burst, 78 commits/sec was below the observed 121 rAF callbacks/sec while incoming traffic read 2,525/sec. The burst's ten-second peak staleness was 502 ms (≤1000 ms); normal traffic reported a 502–508 ms peak range (also ≤1000 ms).
+**Tests run & REAL results:** No automated tests were run; this was documentation-only and the metric values are user-reported from their screen recording. `git diff --check` → no whitespace errors; Git printed its configured LF-to-CRLF normalization notices.
+**Verified:** User-reported Chrome screen recording: feed state BURST; the burst and normal readings above; all 30 rows kept updating; no bus showed STALE. The earlier disconnected-state recording is already documented in the Step 3 browser follow-up. `docs/TEST_RESULTS.md` now marks Normal operation, Freshness, Bounded rendering, and Honesty panel PASS with the provided readings.
+**Not verified:** I did not independently inspect the recording or browser. Because recording began mid-burst, it does not verify the browser's automatic burst start timing. The earlier disconnect report confirms the disconnected state/reconnect; no new numeric disconnected-age or feed-rate readings were provided here.
+**Known issues / limitations:** The on-screen incoming rate peaked at 2,525/sec in the captured portion and then tailed to 1,281/sec; the approximately 3,000/sec peak comes from server logs and load-test measurements, not this mid-burst screen capture. Headless store age remains distinct from browser paint measurements. `PROJECT_CONTEXT.md.pdf` remains untouched.
+**Deviations from spec:** None. No application code was changed.
+**Next step:** Continue with user-owned submission items (video and full AI chat transcript); browser acceptance evidence is updated in `docs/TEST_RESULTS.md`.
 
 ### [2026-10-16 01:20] Step 10 — Decisions, demo outline, and submission consistency
 **Prompt summary:** Prepare the design-decision document, a timed demo outline, and current project context; check the Section 9 submission list, exercise README commands, preserve unrelated user files, and update project status.

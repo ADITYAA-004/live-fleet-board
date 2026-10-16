@@ -20,9 +20,14 @@ From `docs/TEST_RESULTS.md` (Step 9, Node.js `v24.22.0`, npm `11.19.1`):
 
 ## Browser evidence and remaining limits
 
-The user's recorded browser checks confirmed that the fleet table continued updating during a burst and that the server logged the injected BUS-07 out-of-order line. Earlier Step 3/4 checks confirmed WebSocket reconnect behavior and the table's 30 sorted rows with visible OPEN/CLOSED transitions.
+The user's Chrome screen recording confirms the Step 5/7/8/9 browser behavior and the following honesty-panel readings. The recording started mid-burst:
 
-The metric and disconnect readings in the supplied Step 5/7/8 browser report were placeholders (`<REAL>` and `<shown / not shown>`). Therefore the browser-visible rate rise, React commits/sec, rAF rate, browser age values, BURST indicator, and disconnect-age behavior remain **PENDING-BROWSER**. The headless load test does not substitute for those measurements.
+- During the captured burst: feed state BURST; incoming rate 2,525 then 1,281/sec; React commits 78 then 70/sec; rAF callbacks 121/sec; current max staleness 201 then 481 ms; ten-second peak 502 ms.
+- In subsequent normal traffic: incoming rate 60–61/sec; React commits 58–60/sec; rAF callbacks 116–121/sec; current max staleness 470–497 ms; ten-second peak 502–508 ms.
+- All 30 buses kept updating and none showed STALE. Every supplied age reading was below the 1,000 ms requirement.
+- The display's offered rAF cadence is the render bound, not a fixed 60 commits/sec. Burst commits (78/sec) were below the observed rAF rate (121/sec), while feed rate read 2,525/sec.
+
+The on-screen 2,525/sec reading is from a recording that began mid-burst; it is not the overall burst peak. Approximately 3,000/sec is the peak supported by server logs and the load test. The earlier disconnected-state/reconnect confirmation is already recorded in the Step 3 browser follow-up. This recording adds no disconnected-age or feed-rate numbers. The browser automatic burst delay remains unshown because capture began mid-burst; the headless load test measured 45.00 seconds. These are user-reported browser readings, not independently inspected in this session; headless state-age data remains separate from browser paint measurements.
 
 ## Milestone commits
 
@@ -65,7 +70,7 @@ The metric and disconnect readings in the supplied Step 5/7/8 browser report wer
 - `npm test` → 24 passed, 0 failed in 9.629 seconds.
 - `npm run load-test` → passed every check: baseline 59.91/sec; burst averages 2,995.84, 2,994.01, and 2,996.84/sec; 5,727 stale rejects; 0 state regressions; worst sampled age 55 ms; heap growth 1,113 KiB within 12,288 KiB; automatic burst at 45.02 seconds; later client did not reset the timer.
 
-The browser UI itself was not manually inspected in this Step 10 session. Browser-visible honesty-panel values remain pending because the previously supplied readings were placeholders.
+The browser UI was not independently inspected in the Step 10 session. This later user-reported screen recording supplies the normal/burst browser values above; the disconnect-state check remains documented in the earlier Step 3 follow-up.
 
 ## Current tracked project shape
 
