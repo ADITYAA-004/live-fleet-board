@@ -64,6 +64,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
 <!-- Codex: add new entries directly below this line -->
 
+### [2026-10-16 22:54] GitHub publish — sanitized master pushed
+**Prompt summary:** Safely validate, protect, and publish the Live Fleet Board project to the user-provided GitHub repository.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded history cleanup, final validation, and verified push. The Step Status table was reviewed; no project step status changed.
+**Files deleted:** none.
+**What changed (plain English):** Created local backup branch `backup/pre-email-redaction-20261016`, rewrote `master` so all 22 commits use the GitHub no-reply author/committer identity and transcript text is redacted, then pushed only `master` to the supplied `origin`. The remote had no heads or tags before the push. The local backup branch, dependencies, and generated build output were not pushed.
+**Why / design reasoning:** Avoid publishing the personal address retained by older commits while preserving the original history locally and publishing the project without force-pushing.
+**Tests run & REAL results:** Node v24.22.0; npm 11.19.1. `npm test` → 24 passed, 0 failed; feed test 179 messages / 3.005s (59.57/sec); 2-second burst test 6,002 messages / 2.014s (2,980.14/sec), with 602 stale rejects. `npm run build --workspace=client` → Vite build passed (22 modules). `npm run load-test` → PASS; baseline 59.91/sec; burst averages 2,997.84, 2,995.34, and 2,997.34/sec; 5,821 stale rejects; no resurrection; worst sampled age 513 ms (BUS-06), p99 44 ms; heap growth 1,120 KiB within the 12,288 KiB allowance; automatic burst 45.01s after client 1 and 25.00s after client 2, confirming the second client did not reset the timer.
+**Verified:** Rewritten `master` has 22 commits, zero author/committer metadata mismatches, and zero text-content matches for the previous address. The remote was empty before publishing. `git push --set-upstream origin master` succeeded. The local backup branch still points to the pre-rewrite history.
+**Not verified:** Browser behavior was not retested during this GitHub publishing task; prior manual browser evidence remains in the earlier log entries.
+**Known issues / limitations:** The backup branch intentionally retains the original history locally and must not be pushed. Ignored `node_modules/` and `dist/` are excluded.
+**Deviations from spec:** The original commit IDs changed as authorized to remove the private address from history. Only `master` was pushed; no force push was used. No application code changed.
+**Next step:** Review the published repository at `https://github.com/ADITYAA-004/live-fleet-board` and keep the local backup branch private.
+
 ### [2026-10-16 22:45] GitHub publish follow-up — rewrite authorized, destination details pending
 **Prompt summary:** Continue the safe GitHub publishing task after the user authorized a history rewrite.
 **Files created:** none.
