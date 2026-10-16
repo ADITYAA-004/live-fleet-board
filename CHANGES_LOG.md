@@ -64,6 +64,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
 <!-- Codex: add new entries directly below this line -->
 
+### [2026-10-16 22:31] Privacy follow-up — Redact transcript email
+**Prompt summary:** Find the Git author email in all transcript files, report its locations, replace only the address, and record the privacy edit.
+**Files created:** none.
+**Files modified:** `docs/ai-transcript/codex-session-2026-10-15-01a13e55.md` — replaced the two occurrences at lines 373 and 405 with `[REDACTED-EMAIL]`, leaving the author name and all other text unchanged; `CHANGES_LOG.md` — recorded the privacy edit.
+**Files deleted:** none.
+**What changed (plain English):** An email address was redacted from the transcripts for privacy.
+**Why / design reasoning:** Remove personal contact information from project transcript copies while preserving the surrounding saved messages.
+**Tests run & REAL results:** No application tests (documentation-only). The transcript scan found two occurrences in one file; after replacement, zero matches for the address and two `[REDACTED-EMAIL]` tokens remain.
+**Verified:** All transcript files under `docs/ai-transcript/` were scanned; only the two reported occurrences were replaced. Step Status remains unchanged.
+**Not verified:** No application behavior was tested.
+**Known issues / limitations:** None introduced.
+**Deviations from spec:** None. No application code was changed.
+**Next step:** Commit the transcript and changelog edit.
+
 ### [2026-10-16 14:16] Documentation follow-up — Export saved Codex transcripts
 **Prompt summary:** Export existing project-specific Codex session logs to readable Markdown, preserve existing notes, and commit the transcripts.
 **Files created:** `docs/ai-transcript/codex-session-2026-10-15-01a13e43.md` — 37 User and 111 Assistant messages; `docs/ai-transcript/codex-session-2026-10-15-01a13e55.md` — 3 User and 2 Assistant messages; `docs/ai-transcript/codex-session-2026-10-15-01a13e5a.md` — 3 User and 2 Assistant messages.
