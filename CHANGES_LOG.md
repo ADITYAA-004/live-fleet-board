@@ -64,6 +64,34 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
 <!-- Codex: add new entries directly below this line -->
 
+### [2026-10-16 22:45] GitHub publish follow-up — rewrite authorized, destination details pending
+**Prompt summary:** Continue the safe GitHub publishing task after the user authorized a history rewrite.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the authorization and remaining prerequisites. The Step Status table was reviewed; no project step status changed.
+**Files deleted:** none.
+**What changed (plain English):** The user authorized rewriting local history to remove the previously redacted email from transcript content and commit metadata, while retaining a local backup branch. No repository URL or GitHub no-reply author address was provided, so no history rewrite, new commit, or push has occurred.
+**Why / design reasoning:** A destination must be identified before connecting or pushing. A GitHub-provided no-reply address is needed to rewrite author and committer metadata without reintroducing the private address.
+**Tests run & REAL results:** No new tests were run in this follow-up. The previous preflight results remain recorded below.
+**Verified:** User authorization to rewrite history and preserve the original history on a local backup branch.
+**Not verified:** Intended GitHub repository, remote history, authentication, rewritten history, or push.
+**Known issues / limitations:** `gh` is unavailable, no Git remote is configured, and the exact GitHub no-reply address is not known. The preflight changelog update remains uncommitted until a safe commit identity is available.
+**Deviations from spec:** History rewrite and push remain pending the repository URL and replacement author identity; no application code was changed.
+**Next step:** Provide the intended GitHub repository URL and the GitHub-provided no-reply email address to use for rewritten commit metadata. Then the original branch can be preserved locally before rewriting and safely pushing.
+
+### [2026-10-16 22:42] GitHub publish preflight — blocked on remote and history privacy
+**Prompt summary:** Inspect repository state and privacy risks, run documented tests and build, commit current work if appropriate, and push safely to GitHub.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — recorded the preflight results and the push blocker. The Step Status table was reviewed; no project step status changed.
+**Files deleted:** none.
+**What changed (plain English):** The worktree was clean at the start, the current branch is `master`, and no remote is configured. Tests, client build, and load test passed. The historical scan found the previously redacted email in commit `89995d3` and matching author/committer metadata in all 21 local commits, so pushing would disclose it again. No files were staged and no new commit or push was made.
+**Why / design reasoning:** Do not republish personal information from the existing commit history. Removing it requires rewriting commit IDs, so the existing history is preserved until the user authorizes a safe approach.
+**Tests run & REAL results:** `node -v` → `v24.22.0`; `npm -v` → `11.19.1`. `npm test` → 24 passed, 0 failed. `npm run build --workspace=client` → Vite build succeeded. `npm run load-test` → PASS; baseline 59.87 msgs/sec; burst averages 2,997.34, 2,998.33, and 2,990.86 msgs/sec; 5,679 stale rejects; no resurrection; worst sampled age 507 ms; heap growth 1,131 KiB within the 12,288 KiB allowance; automatic burst at 45.00 s, with client 2 not resetting the timer. Current-tree and all-commit scans found no matches for the checked private-key, GitHub-token, AWS-key, or credential-assignment formats; no `.env` or credential-named files were found. The history does contain the personal email noted above.
+**Verified:** Workspace is `C:\Users\adity\OneDrive\Desktop\busfleet`; repository is initialized; branch `master`; initial worktree was clean; no remotes; `.gitignore` ignores `node_modules/`, `dist/`, `.env`, and `.env.*`; there were no untracked non-ignored files. The historical email is present in `docs/ai-transcript/codex-session-2026-10-15-01a13e55.md` in commit `89995d3` at lines 373 and 405, and matching commit metadata exists in all 21 local commits.
+**Not verified:** Remote branch history, GitHub repository identity, authentication, or any push; there is no configured remote.
+**Known issues / limitations:** Publishing the current history would expose the email in an earlier commit and in commit metadata. No remote is configured. History cleanup would rewrite commit IDs and requires explicit user authorization.
+**Deviations from spec:** The commit and push were held to avoid republishing personal information and because no remote exists. No application code was changed.
+**Next step:** User provides the intended GitHub repository URL and chooses whether to authorize a history rewrite that removes the email while retaining a local backup of the original history.
+
 ### [2026-10-16 22:31] Privacy follow-up — Redact transcript email
 **Prompt summary:** Find the Git author email in all transcript files, report its locations, replace only the address, and record the privacy edit.
 **Files created:** none.
