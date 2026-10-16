@@ -39,6 +39,7 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 | Date | Step | What the AI suggested | Why it was wrong/lazy | How it was handled |
 |------|------|-----------------------|-----------------------|--------------------|
 | | | | | |
+| 2026-10-15 | Step 1 (npm install) | The planning assistant said npm install failed because the Codex sandbox had no network access, and told me to run the install on my own PC. | My PC could reach the npm registry (PowerShell got HTTP 200). The real cause was Node 23.1.0 rejecting the HTTPS certificate (UNABLE_TO_VERIFY_LEAF_SIGNATURE). | Codex's own diagnostics exposed the mismatch. I installed a newer Node LTS and set NODE_USE_SYSTEM_CA=1 for the install. Codex also refused the shortcut of disabling TLS verification. |
 
 ---
 
@@ -62,6 +63,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 13:58] Documentation follow-up — Add AI Suggestions Log entry
+**Prompt summary:** Add the user's exact Step 1 npm-install correction to the AI Suggestions Log without changing application code.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — added the requested AI Suggestions Log row verbatim and recorded this documentation-only task.
+**Files deleted:** none.
+**What changed (plain English):** Recorded the user's account that the planning assistant attributed the npm install failure to sandbox networking, while PowerShell reached the npm registry and Node 23.1.0 failed TLS validation. Recorded the newer Node LTS and `NODE_USE_SYSTEM_CA=1` resolution, and the refusal to disable TLS verification.
+**Why / design reasoning:** Preserve the user's real correction in the project-owned AI Suggestions Log for the demo and project history.
+**Tests run & REAL results:** No application tests (documentation-only). `git diff --check` → no whitespace errors.
+**Verified:** The supplied AI Suggestions Log row was added verbatim. The Step Status table was reviewed and remains unchanged because no step status changed.
+**Not verified:** No new npm installation or TLS diagnosis was performed in this task.
+**Known issues / limitations:** None introduced.
+**Deviations from spec:** None. No application code was changed.
+**Next step:** Commit only `CHANGES_LOG.md` as requested.
 
 ### [2026-10-16 13:49] Step 9 follow-up — Automatic burst confirmed from server log
 **Prompt summary:** Mark the Automatic burst acceptance test PASS using the user's server log, recorded burst rates, headless timing results, and reconnect observation; document that the automatic page-side transition was not separately captured.
