@@ -2,76 +2,93 @@
 
 Updated: 2026-10-16. Project root: `C:\Users\adity\OneDrive\Desktop\busfleet`.
 
-## Finished state
+## Current state
 
-Steps 0–10 are marked Done in `CHANGES_LOG.md`. The application contains a Node simulator and WebSocket server, a React/Vite client, the per-bus freshness guard, a latest-state store, a controlled animation-frame render loop, measured metrics, and a headless burst/load harness. Step 10 changed submission documentation only; no application code was changed.
+Steps 0–9 are complete according to the Step Status table and their recorded evidence in `CHANGES_LOG.md`. The app has a Node simulator, a WebSocket server, a React/Vite dashboard, a per-bus sequence guard and latest-state store, a controlled `requestAnimationFrame` publish loop, measured dashboard metrics, and a headless load test. Step 10's written submission documents have been reconciled in this task. The required demo video is still pending, so the project is not fully submitted and Step 10 remains in progress.
 
-## Verified results
+No application code was changed in the documentation-finalization task.
 
-From `docs/TEST_RESULTS.md` (Step 9, Node.js `v24.22.0`, npm `11.19.1`):
+## Latest automated verification
 
-- `npm test`: 24 passed, 0 failed. The normal feed integration test measured 60.07 updates/sec; the short burst integration test measured 2,977.18 messages/sec and observed stale rejections.
-- `npm run load-test`: baseline 60.10 updates/sec across 30 buses; three burst averages were 2,997.84, 2,995.34, and 2,995.34 messages/sec.
-- The three bursts produced 5,826 stale rejects and 0 displayed sequence regressions/resurrections. Final accepted sequences converged to each bus's highest produced sequence.
-- Across the 50 ms state-age samples, the worst bus maximum was BUS-08 at 439 ms; p99 across sampled bus-age values was 31 ms. This measures headless store state age, not browser paint.
-- The store retained 30 entries. Forced-GC heap usage rose from 8,773 KiB to 9,907 KiB, a 1,134 KiB increase against the documented 12,288 KiB allowance.
-- The first automatic burst began 45.00 seconds after the first client connected. A second client connected 20.01 seconds after the first; the burst began 25.00 seconds after that second connection, so it did not reset the timer.
-- A clone of the Step 9 committed tree installed 42 packages, started the server and Vite, returned HTTP 200 with the React entry script, and was shut down and deleted. Alternate ports were used because default ports were occupied.
+Environment: Node.js `v24.22.0`, npm `11.19.1`.
 
-## Browser evidence and remaining limits
-
-The user's Chrome screen recording confirms the Step 5/7/8/9 browser behavior and the following honesty-panel readings. The recording started mid-burst:
-
-- During the captured burst: feed state BURST; incoming rate 2,525 then 1,281/sec; React commits 78 then 70/sec; rAF callbacks 121/sec; current max staleness 201 then 481 ms; ten-second peak 502 ms.
-- In subsequent normal traffic: incoming rate 60–61/sec; React commits 58–60/sec; rAF callbacks 116–121/sec; current max staleness 470–497 ms; ten-second peak 502–508 ms.
-- All 30 buses kept updating and none showed STALE. Every supplied age reading was below the 1,000 ms requirement.
-- The display's offered rAF cadence is the render bound, not a fixed 60 commits/sec. Burst commits (78/sec) were below the observed rAF rate (121/sec), while feed rate read 2,525/sec.
-
-The on-screen 2,525/sec reading is from a recording that began mid-burst; it is not the overall burst peak. Approximately 3,000/sec is the peak supported by server logs and the load test. The earlier disconnected-state/reconnect confirmation is already recorded in the Step 3 browser follow-up. This recording adds no disconnected-age or feed-rate numbers. The browser automatic burst delay remains unshown because capture began mid-burst; the headless load test measured 45.00 seconds. These are user-reported browser readings, not independently inspected in this session; headless state-age data remains separate from browser paint measurements.
-
-## Milestone commits
-
-| Milestone | Commit |
+| Command | Result |
 |---|---|
-| Step 0 — workspace ready | `91fb9a1` |
-| Step 1 — project skeleton | `540af21` |
-| Step 2 — simulator | `1db7bf0` |
-| Step 3 — WebSocket and browser confirmation | `5f68623`, `ed76c62` |
-| Step 4 — fleet table and browser confirmation | `b2e8a3b`, `bdb61d0` |
-| Step 5 — sequence guard | `00f3638` |
-| Step 6 — render loop and browser confirmation | `9106f41`, `0c02a3d` |
-| Step 7 — burst and browser confirmation | `74d99c6`, `5f4b7d9` |
-| Step 8 — metrics and browser confirmation | `6cb48f1`, `8ea27f1` |
-| Step 9 — load test, results, and clean-start check | `85aeecf` |
-| Step 10 — decisions and demo prep | Recorded in the current Step 10 commit. |
+| `npm test` | PASS — 24 passed, 0 failed; duration 9.816 s. The normal feed test received 180 messages in 3.003 s (59.94/sec). The 2-second burst integration test received 6,002 messages in 2.008 s (2,989.04/sec), with 630 out-of-order frames and 630 stale rejects. |
+| `npm run build --workspace=client` | PASS — Vite 8.3.4 transformed 22 modules and built in 386 ms. |
+| `npm run load-test` | PASS — detailed current run below. |
 
-## Submission items
+### Current load-test run
 
-- `DECISIONS.md` and `DEMO_SCRIPT.md` are the Step 10 written preparation.
-- The video is not recorded; the user must record it.
-- `docs/ai-transcript/` has `step-00-workspace-relocation-session-log.md` and `step-01-project-skeleton-session-log.md`. These are session notes, not the full AI chat transcript; the full transcript remains for the user to add.
-- `CHANGES_LOG.md` has an empty AI Suggestions Log. The demo outline names two real harness issues as candidates but does not attribute them to AI or write a log row.
+- Baseline: 600 messages in 10.00 s (59.98/sec), all 30 buses, zero normal-mode reorder.
+- Burst averages: 2,992.85/sec, 2,996.84/sec, and 2,993.85/sec; respective measured peaks: 3,027/sec, 3,012/sec, and 3,022/sec.
+- Stale rejects: 1,951 + 1,939 + 1,878 = 5,768. Displayed sequence regressions/resurrections: 0. BUS-07 ended CLOSED at seq 1,826.
+- Freshness: all 30 buses stayed within 1,000 ms; worst sampled per-bus maximum was 49.0 ms (BUS-01); p99 of sampled bus ages was 30.0 ms. These are headless store-age samples, not paint measurements.
+- Store and soak: exactly 30 entries remained. Forced-GC heap used rose from 8,792 KiB to 9,914 KiB (+1,122 KiB), within the 12,288 KiB allowance.
+- Automatic timing: first burst began 45.00 s after client 1 connected. Client 2 connected 20.01 s after client 1; the burst began 24.99 s after client 2, confirming the later client did not reset the timer.
+- Shutdown: local server, simulator, and scheduler timers were cleared.
 
-## Source of Truth §9 consistency check
+These values are from the documentation-finalization rerun. Earlier Step 9 values in `docs/TEST_RESULTS.md` remain as historical results from that earlier run.
 
-| Submission item | Status | Evidence / remaining work |
+## Browser evidence and limits
+
+The user's Chrome recording and reports are manually supplied evidence, not a browser check performed during this documentation task. The recording started mid-burst:
+
+- Captured burst: BURST indicator; incoming 2,525 then 1,281/sec; React commits 78 then 70/sec; rAF callbacks 121/sec; current maximum age 201 then 481 ms; 10-second peak 502 ms.
+- Subsequent normal traffic: incoming 60–61/sec; commits 58–60/sec; rAF callbacks 116–121/sec; current maximum age 470–497 ms; 10-second peak 502–508 ms.
+- All 30 rows kept updating and none showed STALE. A separate earlier user report confirms disconnect/reconnect behavior; it supplied no numeric disconnect-age readings.
+- The recording began mid-burst, so the on-screen incoming reading did not capture the overall burst peak. Approximately 3,000/sec is supported by the server logs and load tests. The page-side automatic burst transition was not separately recorded; the automatic timer is verified by the user's server-log report and automated timing checks.
+
+The browser and server share a machine clock in this setup. Headless age does not measure whether the browser painted a state. React commits and rAF callbacks are separately measured; a display's rAF cadence is an opportunity bound, not a promise to display every incoming update.
+
+## Transcript inventory
+
+The directory `docs/ai-transcript/` contains five files. The three exported Codex session Markdown files contain 158 `## User` / `## Assistant` headings in total (148 + 5 + 5). An earlier export note says 156; the count here is from the current files. The two Step 0/1 files are session notes, not full transcript exports, and are not included in that heading count. The source files are left unchanged.
+
+| File | Bytes | Speaker headings / date evidence |
+|---|---:|---|
+| `codex-session-2026-10-15-01a13e43.md` | 131,236 | 148; first `2026-10-15T06:32:36.031Z`, last `2026-10-16T08:48:11.257Z` |
+| `codex-session-2026-10-15-01a13e55.md` | 70,951 | 5; first `2026-10-15T06:52:33.791Z`, last `2026-10-15T06:52:51.581Z` |
+| `codex-session-2026-10-15-01a13e5a.md` | 55,520 | 5; first `2026-10-15T06:57:39.018Z`, last `2026-10-15T07:01:14.234Z` |
+| `step-00-workspace-relocation-session-log.md` | 2,773 | Setup session note dated 2026-10-15; not a full transcript |
+| `step-01-project-skeleton-session-log.md` | 2,680 | Setup session note dated 2026-10-15; not a full transcript |
+
+The exported sessions include the Step 0–10 development conversation and the logged Step 1 npm-install suggestion. The count disagreement is resolved by counting the current files; no transcript was reconstructed or edited for this audit.
+
+## Current repository and milestone history
+
+The original `docs/SOURCE_OF_TRUTH.docx` is present and unchanged from its initial Git blob (`7cf3168c4a44ad86060a2a74b7e9c1a5719552e8`). The branch is `master`; the existing HEAD before this documentation-finalization commit was `e009f29 Record GitHub publication`. The milestone hashes below are the current post-redaction history, not the earlier pre-rewrite hashes.
+
+| Step | Current commit(s) |
+|---|---|
+| 0 | `80bc90f` |
+| 1 | `e55349e` |
+| 2 | `a60e0b2` |
+| 3 | `4e8a897`, `0438fa8` |
+| 4 | `fb4367b`, `6eabb76` |
+| 5 | `8f40d15`, with browser confirmation in `e8b90d3` |
+| 6 | `d6d0192`, `74e1916` |
+| 7 | `f1c8c92`, `b88d0f2` |
+| 8 | `22bbe11`, `e8b90d3` |
+| 9 | `31d5b1b` |
+| 10 written preparation | `0d93e17` |
+
+Subsequent commits recorded browser readings, automatic-burst confirmation, the AI suggestion, transcript export/redaction, and GitHub publication; see `git log --oneline` and `CHANGES_LOG.md` for those follow-ups.
+
+## Source of Truth §9 submission checklist
+
+| Deliverable | Status | Evidence / remaining work |
 |---|---|---|
-| Working source code and scripts | DONE | Server, client, simulator, unit/integration tests, and `scripts/load-test.js` are present; current `npm test` and `npm run load-test` runs passed. |
-| README prerequisites, one startup command, test and load-test commands | DONE | README documents Node.js 22.19+ LTS, npm, `npm start`, `npm test`, and `npm run load-test`. The commands and documented PowerShell burst controls were exercised in this session. |
-| DECISIONS.md | DONE | Created with the selected design, rejected alternatives, costs, assumptions, trade-offs, scale risks, and next steps. |
-| 5–10 minute demo video | MISSING | `DEMO_SCRIPT.md` is prepared; the user still needs to record the video. |
-| Full AI chat transcript | MISSING | `docs/ai-transcript/` contains only the two setup session notes listed above, not the full development chat. The user still needs to add the transcript. |
+| Working source code and scripts | DONE | Server, client, tests, simulator and load-test script are present. Current tests, build and load test passed. |
+| README prerequisites, one startup command, and load/burst command | DONE | `README.md` documents Node.js 22.19+ LTS, `npm start`, `npm test`, and `npm run load-test`. Prior Step 10 log records clean-clone and README command checks; they were not repeated in this run. |
+| `DECISIONS.md` | DONE | Chosen design, alternatives, costs, trade-offs, assumptions, scale risks and next steps are documented. |
+| 5–10 minute video answering the four questions | PENDING USER | Record it using `DEMO_SCRIPT.md`; the video is not present in the repository. |
+| AI chat transcript used during development | PRESENT | Three exported session files with 158 speaker headings, plus two setup notes; see inventory above. This is the actual archived material, not a reconstructed transcript. |
 
-### README command verification from Step 10
+## Manual actions still required
 
-- PowerShell `$env:NODE_USE_SYSTEM_CA = '1'; npm install` → success; `up to date, audited 45 packages in 4s`, 0 vulnerabilities.
-- `npm start` with `PORT=8094` to avoid the already-running server → server started on 8094; Vite selected 5175 because 5173 and 5174 were occupied. HTTP returned 200 and referenced `/src/main.jsx`; a WebSocket client through Vite `/feed` received a valid eight-field message. `POST http://localhost:8094/burst` returned `{"ok":true,"started":true}`. Both processes were stopped; the pre-existing port-8080 process was left untouched.
-- `BURST_ON_START=1 npm start` with `PORT=8095` → server logged an immediate burst and the injected BUS-07 out-of-order message. The process was stopped after the burst.
-- `npm test` → 24 passed, 0 failed in 9.629 seconds.
-- `npm run load-test` → passed every check: baseline 59.91/sec; burst averages 2,995.84, 2,994.01, and 2,996.84/sec; 5,727 stale rejects; 0 state regressions; worst sampled age 55 ms; heap growth 1,113 KiB within 12,288 KiB; automatic burst at 45.02 seconds; later client did not reset the timer.
+1. Record the 5–10 minute video using `DEMO_SCRIPT.md`. Show normal traffic, the automatic burst timing if practical, a manual burst, the out-of-order BUS-07 server line and stale count, measured panel values, server-only disconnect behavior, and the test/load-test commands.
+2. In the AI segment, use only the Step 1 entry in the AI Suggestions Log: explain that the network diagnosis was wrong, the PC reached the registry, the actual error was certificate verification under Node 23.1.0, and the fix preserved TLS verification.
+3. Add the video file or submission link to the required submission location and confirm the final submission checklist with it included.
 
-The browser UI was not independently inspected in the Step 10 session. This later user-reported screen recording supplies the normal/burst browser values above; the disconnect-state check remains documented in the earlier Step 3 follow-up.
-
-## Current tracked project shape
-
-Root instructions, README, decisions, demo outline, npm workspaces, server, client, load-test script, source document, test results, and session notes are present. `node_modules/` is ignored. A root-level untracked `PROJECT_CONTEXT.md.pdf` is present; it is user data and has been left untouched. This Markdown file is the requested current context document under `docs/`.
+The project is not fully submitted until the video has actually been recorded and added.

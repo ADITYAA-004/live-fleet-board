@@ -8,7 +8,7 @@
 - **Measured metrics and a headless load test.** The dashboard shows measured feed, render, frame, and age values; the load test exercises the same store guard and reports state-store age separately from browser paint.
 - **The requested npm workspace stack.** The server uses `ws`; the client uses React and Vite; `npm start` starts both together. The Vite development proxy forwards `/feed` to the server.
 
-The Step 9 run measured a normal feed of 60.10 updates/sec and burst averages of 2,997.84, 2,995.34, and 2,995.34 messages/sec. The three bursts produced 5,826 stale rejections and zero displayed state regressions or door resurrections. These are measurements from the headless client, not browser paint timings.
+The Step 9 run recorded in the original test report measured a normal feed of 60.10 updates/sec and burst averages of 2,997.84, 2,995.34, and 2,995.34 messages/sec. The three bursts produced 5,826 stale rejections and zero displayed state regressions or door resurrections. The later documentation-finalization rerun measured 59.98 updates/sec at baseline and burst averages of 2,992.85, 2,996.84, and 2,993.85 messages/sec, with 5,768 stale rejections and zero regressions. These are headless-client measurements, not browser paint timings; details and run separation are in `docs/TEST_RESULTS.md`.
 
 ## Alternatives considered and rejected
 
@@ -24,11 +24,11 @@ The Step 9 run measured a normal feed of 60.10 updates/sec and burst averages of
 
 The project has two npm workspaces, server and client, plus root scripts for startup, unit tests, and the load test. `npm install` installs the workspace dependencies; `npm start` runs the server and Vite client together. A clean clone of the Step 9 tree installed 42 packages in 11 seconds. No database, authentication service, or deployment layer is required for this simulation.
 
-The main complexity is coordinating simulator production time, burst delivery order, client freshness checks, and rendering without retaining a backlog. This is covered by direct store tests, fake-clock/fake-rAF tests, WebSocket integration tests, and the load test. The load test took three bursts through one store and observed a 1,134 KiB heap increase, within its documented 12,288 KiB allowance; that is evidence for this test run, not a general memory guarantee.
+The main complexity is coordinating simulator production time, burst delivery order, client freshness checks, and rendering without retaining a backlog. This is covered by direct store tests, fake-clock/fake-rAF tests, WebSocket integration tests, and the load test. The Step 9 run observed a 1,134 KiB heap increase; the documentation-finalization rerun observed 1,122 KiB, both within the documented 12,288 KiB allowance. These are evidence for those runs, not a general memory guarantee.
 
 ## Trade-offs
 
-We intentionally lose intermediate motion detail. If several updates for one bus arrive between browser paints, only the latest accepted state is displayed. That keeps the displayed fleet fresh and prevents a queue of old positions from replaying after a burst. A 60 Hz display is an upper repaint cadence, not a promise that every update will be shown.
+We intentionally lose intermediate motion detail. If several updates for one bus arrive between browser paints, only the latest accepted state is displayed. That keeps the displayed fleet fresh and prevents a queue of old positions from replaying after a burst. The browser's offered `requestAnimationFrame` cadence is the repaint opportunity bound, not a promise that every update will be shown. In the user's reported recording, a display reported as about 120 Hz offered about 121 callbacks/sec; that is a browser observation, not a fixed project-wide rate.
 
 ## Assumptions
 
@@ -54,7 +54,7 @@ These are scale-up investigation points, not features already implemented or mea
 
 ## Next steps
 
-- Record the demo video using `DEMO_SCRIPT.md` and capture real browser metric values rather than placeholders.
-- Add the full AI chat transcript used during development; the current transcript folder contains only two setup session notes.
-- Choose a real logged AI suggestion for the video. The AI Suggestions Log is empty today, so this document does not attribute an observed harness issue to an AI suggestion.
+- Record the 5–10 minute demo video using `DEMO_SCRIPT.md`; the video is not present yet.
+- Use the actual Step 1 AI Suggestions Log entry in the video. It describes the incorrect sandbox-network diagnosis, the observed registry HTTP 200 and certificate error, and the TLS-preserving correction. Do not attribute the Step 9 harness bugs to AI.
+- Keep the transcript inventory in `docs/PROJECT_CONTEXT.md` synchronized with the actual files. The directory currently contains three Codex session exports with 158 User/Assistant Markdown headings in total, plus the two pre-existing Step 0/1 setup notes; the transcripts themselves have not been rewritten to change their contents.
 - If the deployment target changes to multiple machines or a much larger fleet, measure clock skew, feed processing, and per-client backpressure before adding complexity such as a worker or a state library.

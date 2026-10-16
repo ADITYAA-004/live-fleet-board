@@ -65,3 +65,20 @@ The captured on-screen burst reading is 2,525/sec because recording started mid-
 - The browser recording started mid-burst and does not separately show the page during an automatically triggered first burst; the server terminal log and load test establish the trigger and timing. The recorded browser values and terminal log are user-reported, not independently inspected in this session.
 - With `LOAD_TEST_URL`, the script can compare accepted state against the highest seq received on the WebSocket, but that external server does not expose simulator internals. The default isolated-server run used here compares against the actual highest produced seq.
 - Age assumes the same machine clock for producer and test client, as in this project setup.
+
+## Documentation-finalization verification — 2026-10-16
+
+This is a fresh run performed while reconciling Step 10 documents. It supplements, and does not overwrite, the historical Step 9 run and the user's earlier browser measurements above.
+
+- Environment: Node.js `v24.22.0`, npm `11.19.1`.
+- `npm test` → PASS, 24 passed / 0 failed in 9.816 s. Normal feed: 180 messages in 3.003 s (59.94/sec). Two-second burst integration: 6,002 messages in 2.008 s (2,989.04/sec), 630 out-of-order frames, and 630 stale rejects.
+- `npm run build --workspace=client` → PASS, Vite 8.3.4 transformed 22 modules and completed in 386 ms.
+- `npm run load-test` → PASS. Baseline: 600 messages / 10.00 s = 59.98/sec; 30 distinct buses; zero normal-mode reordering. Burst averages: 2,992.85, 2,996.84, and 2,993.85/sec; peaks: 3,027, 3,012, and 3,022/sec. Per-burst stale rejects: 1,951, 1,939, and 1,878 (5,768 total). State regressions/resurrections: 0; BUS-07 ended CLOSED at seq 1,826. All 30 buses stayed within 1,000 ms; worst sampled per-bus maximum was 49.0 ms (BUS-01), and p99 across sampled ages was 30.0 ms.
+- Three-burst soak: 30 store entries; forced-GC heap used 8,792 KiB before and 9,914 KiB after (+1,122 KiB), within the 12,288 KiB allowance. Server/simulator timers were cleared at shutdown.
+- Automatic timing: first burst started 45.00 s after client 1 connected. Client 2 connected 20.01 s after client 1; the burst started 24.99 s after client 2, so it did not restart the timer.
+
+The automatic page-side transition was not separately recorded in the prior browser capture. The user's server log and this automated timing run verify the automatic timer; the recorded page-side burst was manually triggered. This run did not open a browser, reinstall packages, or repeat the clean-clone startup check.
+
+## Submission status
+
+The source, scripts, README, `DECISIONS.md`, and three exported Codex session transcripts are present. The transcript directory also contains two Step 0/1 setup notes; the three exported transcript files contain 158 User/Assistant Markdown headings (148 + 5 + 5). A prior log entry reported 156; the current file count is the corrected inventory. The required 5–10 minute video remains **PENDING USER**. Do not treat this project as fully submitted until that video is recorded and added.

@@ -9,15 +9,16 @@ Target length: about 7–8 minutes. Keep the browser, server terminal, and a Pow
 | 0:00–0:40 | Introduce the problem | Show the 30-bus dashboard and explain the goal: stay current during a burst and never let an older update overwrite a newer one. |
 | 0:40–1:35 | What was chosen and why | Trace simulator → WebSocket `/feed` → sequence-guarded latest-state map → `requestAnimationFrame` snapshot → React table and honesty panel. Explain why the map intentionally overwrites intermediate states. |
 | 1:35–2:20 | Alternatives | Briefly cover per-message React state, queueing, a worker, polling, SSE, Redux, and arrival-order last-write-wins. Emphasize that the sequence number, not arrival time, decides whether a state is newer. |
-| 2:20–3:00 | Measured evidence | Show `docs/TEST_RESULTS.md`: 60.10 updates/sec baseline; burst averages 2,997.84, 2,995.34, and 2,995.34 messages/sec; 5,826 stale rejects; zero display regressions; worst sampled age 439 ms. Clarify that these are headless/store measurements. |
-| 3:00–5:20 | Live demo | Follow the checklist below: normal traffic, immediate burst, injected stale message, honesty panel, then stop only the server and observe the disconnected state and increasing ages. |
+| 2:20–3:00 | Measured evidence | Show the latest audit run in `docs/TEST_RESULTS.md`: 59.98 updates/sec baseline; three burst averages of 2,992.85, 2,996.84, and 2,993.85 messages/sec; 5,768 stale rejects; zero state regressions; worst sampled headless age 49 ms. Explain that these are store-age measurements, not browser paint. Then show the separately labelled user-recorded browser values. |
+| 3:00–5:20 | Live demo | Follow the checklist below: normal traffic, automatic burst timing, a manual burst, the injected stale message, honesty panel, then stop only the server and observe disconnect and increasing ages. The automatic page-side transition was not previously recorded; capture it in this video if practical. |
 | 5:20–6:15 | What breaks at 10x scale | Explain that a linear projection from the measured feed is about 300 buses and 30,000 burst messages/sec, not a test result. Discuss main-thread JSON parsing, server fan-out, per-client backpressure, table virtualization, clock skew, and multiple server instances. Add a worker only if profiling supports it. |
-| 6:15–7:20 | AI suggestion segment | **Not ready to record as written:** the AI Suggestions Log in `CHANGES_LOG.md` is empty. Do not claim an AI made either suggestion. See “Real candidates to choose from” below; select one only if it matches the actual conversation history and record it in the log before filming this segment. |
-| 7:20–7:50 | Close | Summarize the freshness-first design, what the tests establish, and the remaining browser evidence/transcript work. |
+| 6:15–7:20 | AI suggestion segment | Use the actual Step 1 entry in `CHANGES_LOG.md`. The planning assistant attributed the install failure to the Codex sandbox having no network and told the user to install on their PC. That diagnosis was wrong: the PC reached the npm registry (HTTP 200), while Node 23.1.0 rejected the certificate with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`. The PC install was useful as a diagnostic, but it did not explain the failure. The correction was a newer Node LTS plus `NODE_USE_SYSTEM_CA=1` for that PowerShell install; TLS verification stayed enabled. Explain the engineering lesson: verify the failing layer and fix certificate trust without disabling TLS checks. |
+| 7:20–7:50 | Close | Summarize the freshness-first design and what the tests establish. State that the video is the remaining submission item and that the earlier page recording did not capture the automatic transition. |
 
 ## Live-demo checklist
 
 - [ ] Start with `npm start`; open <http://localhost:5173> and show connected status, all bus rows, and normal feed activity.
+- [ ] For the automatic burst, connect the first browser client, show the server's scheduled line, and keep the recording running until the server logs the first burst about 45 seconds later. The prior page recording showed a manually triggered burst, not the automatic page-side transition.
 - [ ] Trigger a burst from PowerShell: `Invoke-RestMethod -Method Post http://localhost:8080/burst`.
 - [ ] Show the server's `[burst] injected out-of-order: BUS-07 ... CLOSED delivered before ... OPEN` line and the stale-rejection count increasing in the page.
 - [ ] Show the honesty panel during normal traffic and the burst: incoming rate, React commits/sec, rAF callbacks/sec, current/peak age, and normal/BURST indicator. Read out the values actually visible in this recording.
@@ -25,11 +26,4 @@ Target length: about 7–8 minutes. Keep the browser, server terminal, and a Pow
 - [ ] In a terminal, run `npm test` and show the passing summary.
 - [ ] Run `npm run load-test` and show its baseline, burst, stale-reject, freshness, sequence, memory, and automatic-timing report. Say that its age is headless store age, not browser paint.
 
-## Real candidates to choose from for the AI segment
-
-The AI Suggestions Log is currently empty, so there is no verified “incorrect or lazy AI suggestion” to narrate. Two real Step 9 harness issues are documented in `docs/TEST_RESULTS.md` and `CHANGES_LOG.md`; they are candidates to inspect against the full chat history, not claims that AI suggested them:
-
-1. An early harness check used a fixed 400 ms delivery drain and checked producer/store sequence equality before the final WebSocket delivery arrived. The harness was corrected to wait for sequence convergence.
-2. The load-test monitor subscribed after the simulator had already emitted initial updates because the server starts simulator timers before `start()` returns. The monitor was corrected to seed its baseline from simulator sequence/time state.
-
-Before recording this segment, compare the candidates with the actual AI conversation. If neither was an AI suggestion, choose a real suggestion from the full transcript and add it to the AI Suggestions Log yourself; do not present an implementation bug as an AI suggestion.
+The AI segment is grounded in the single real Step 1 row in the project's AI Suggestions Log. Do not substitute either Step 9 harness bug for an AI suggestion; no such attribution is recorded.
