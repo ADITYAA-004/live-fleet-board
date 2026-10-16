@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
-| 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; video and full transcript are still for the user to add. |
+| 10 | DECISIONS.md + demo prep + transcript | ✅ Done | 2026-10-16 | Written submission docs and README command checks complete; saved project Codex session transcripts are now exported; video remains for the user to add. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -63,6 +63,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-16 14:16] Documentation follow-up — Export saved Codex transcripts
+**Prompt summary:** Export existing project-specific Codex session logs to readable Markdown, preserve existing notes, and commit the transcripts.
+**Files created:** `docs/ai-transcript/codex-session-2026-10-15-01a13e43.md` — 37 User and 111 Assistant messages; `docs/ai-transcript/codex-session-2026-10-15-01a13e55.md` — 3 User and 2 Assistant messages; `docs/ai-transcript/codex-session-2026-10-15-01a13e5a.md` — 3 User and 2 Assistant messages.
+**Files modified:** `CHANGES_LOG.md` — recorded the transcript export and updated Step 10's note to show the exported history; Step 10 remains Done with its original completion date.
+**Files deleted:** none. Existing Step 0 and Step 1 transcript notes were preserved.
+**What changed (plain English):** Converted the three saved JSONL session logs whose metadata names `C:\Users\adity\OneDrive\Desktop\busfleet` as their workspace into Markdown, retaining saved User and Assistant messages in source order with their original timestamps. The older July compressed session was not included because it predates this project and has no workspace association in the session index.
+**Why / design reasoning:** Keep the real project conversation history without reconstructing or summarizing it.
+**Tests run & REAL results:** No application tests (documentation-only). The export counted 148, 5, and 5 messages respectively; first/last raw timestamps were checked against source event records. SHA-256 checks confirmed the existing Step 0 and Step 1 notes were unchanged. `git diff --check` reports trailing whitespace from verbatim saved messages.
+**Verified:** All three selected source logs have `busfleet` in their workspace metadata; exported message totals and timestamps match the source records; existing notes remain byte-for-byte unchanged.
+**Not verified:** Content not present in the saved session logs cannot be recovered by this export.
+**Known issues / limitations:** Transcript exports contain only saved User and Assistant message records; other-project logs were excluded. Some source message text has trailing spaces, retained as saved, so Git's whitespace check flags those transcript lines.
+**Deviations from spec:** None. No application code was changed.
+**Next step:** Review the exported transcripts and commit the documentation changes.
 
 ### [2026-10-16 13:58] Documentation follow-up — Add AI Suggestions Log entry
 **Prompt summary:** Add the user's exact Step 1 npm-install correction to the AI Suggestions Log without changing application code.
