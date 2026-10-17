@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
-| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-16 | Written docs, final checklist, video staging instructions, and transcript inventory reconciled against source and current evidence; the required 5–10 minute video remains pending from the user. |
+| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-17 | DECISIONS.md now covers the required choice comparison, costs, trade-off, assumptions with failure cases, stack statement, evidence-based worker rationale, and blank hours line; video remains pending. |
 | 11 | Browser-triggered burst | 🟨 In progress | 2026-10-17 | Button, Vite proxy, automated checks, and direct/proxied response comparison passed; browser confirmation is pending from the user. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
@@ -64,6 +64,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-17 17:09] Step 10 — DECISIONS.md aligned with required checklist
+**Prompt summary:** Review DECISIONS.md against the nine requested criteria, report gaps before editing, then fill them using only figures already recorded in TEST_RESULTS.md or CHANGES_LOG.md.
+**Files created:** none.
+**Files modified:** `DECISIONS.md` — clarify implementation choices versus alternatives; setup and operational costs; why each alternative is unsuitable; both sides of the freshness-versus-motion trade-off for dispatcher decisions; four assumptions and failure consequences; stack/deviation statement; evidence-based Web Worker rationale; structured next steps; blank `Hours spent:` line. `CHANGES_LOG.md` — record this review and update Step 10 status date/notes.
+**Files deleted:** none.
+**What changed (plain English):** Expanded the rationale so it names the dispatcher decision context, explains what freshness sacrifices and what complete-motion replay would cost, and says directly that the project does not deviate from React + Node WebSocket. It identifies Vite, `ws`, `concurrently`, workspaces, both Vite proxies, and the dev burst endpoint/button. The worker decision now cites the browser and headless age/render readings in `docs/TEST_RESULTS.md`, while stating those figures do not measure parse CPU cost. The hours field is empty for the user to fill.
+**Why / design reasoning:** The existing page listed design decisions but left out required costs, conditional assumptions, explicit no-deviation statement, and a measured basis for rejecting worker complexity.
+**Tests run & REAL results:** No application tests were run because this task changed documentation only. `git diff --check` → PASS. Values referenced in `DECISIONS.md` were checked against `docs/TEST_RESULTS.md`: 42 packages / 11 seconds; incoming 2,525 then 1,281/sec; commits 78 then 70/sec; rAF 121/sec; burst staleness 201 then 481 ms and peak 502 ms; normal staleness 470–497 ms and peak 502–508 ms; headless worst age 432 ms against the 1,000 ms target.
+**Verified:** Compared the current document to all nine checklist items and verified the quoted measurements already exist in the test report. No application code was changed. `Hours spent:` remains blank.
+**Not verified:** No browser, load test, production deployment, or new performance profile was run for this documentation-only task.
+**Known issues / limitations:** Step 10 remains in progress until the real demonstration video is recorded and delivered. The pre-existing unrelated modification to `DEMO_SCRIPT.md` remains untouched and is excluded from this commit; it contains a `taskkill /F /IM node.exe` command that would terminate all Node processes if run.
+**Deviations from spec:** None.
+**Next step:** User can fill `Hours spent:`; finish the pending browser confirmation and video deliverable when ready.
 
 ### [2026-10-17 17:05] Step 11 — Browser burst control added
 **Prompt summary:** Add a dashboard button that POSTs to the existing dev burst endpoint through Vite, without changing the freshness store, render loop, or server burst logic.
