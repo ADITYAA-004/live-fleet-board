@@ -7,6 +7,8 @@ import { useFleetSnapshot } from "./hooks/useFleetSnapshot.js";
 
 export default function App() {
   const [status, setStatus] = useState("disconnected");
+  const [burstPending, setBurstPending] = useState(false);
+  const [burstMessage, setBurstMessage] = useState("No burst request yet.");
   const storeRef = useRef(null);
   if (storeRef.current === null) storeRef.current = createFleetStore();
   const store = storeRef.current;
@@ -14,6 +16,30 @@ export default function App() {
   if (metricsRef.current === null) metricsRef.current = createMetrics({ now: () => Date.now() });
   const metrics = metricsRef.current;
   const { snapshot, metrics: metricSnapshot } = useFleetSnapshot(store, metrics);
+
+  async function triggerBurst() {
+    // This state changes only from the button request, never from WebSocket messages.
+    setBurstPending(true);
+    setBurstMessage("Sending burst request…");
+    try {
+      const response = await fetch("/burst", { method: "POST" });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(result?.message ?? `Server returned HTTP ${response.status}.`);
+      }
+      if (typeof result?.started !== "boolean") {
+        throw new Error("Server returned an unexpected burst response.");
+      }
+      setBurstMessage(result.started ? "Burst started." : "A burst is already running.");
+    } catch (error) {
+      const detail = error instanceof TypeError
+        ? "Could not reach the server; check that it is running."
+        : error instanceof Error ? error.message : "The server is unavailable.";
+      setBurstMessage(`Burst request failed: ${detail}`);
+    } finally {
+      setBurstPending(false);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -89,6 +115,12 @@ export default function App() {
           </p>
         </header>
         <FleetMetrics metrics={metricSnapshot} />
+        <div className="burst-control">
+          <button type="button" onClick={triggerBurst} disabled={burstPending}>
+            {burstPending ? "Triggering…" : "Trigger burst now"}
+          </button>
+          <p role="status" aria-live="polite">{burstMessage}</p>
+        </div>
         <FleetTable snapshot={snapshot} />
       </main>
     </Profiler>

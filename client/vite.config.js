@@ -9,6 +9,9 @@ export default defineConfig({
         target: `ws://localhost:${process.env.PORT ?? "8080"}`,
         ws: true,
       },
+      "/burst": {
+        target: `http://localhost:${process.env.PORT ?? "8080"}`,
+      },
     },
   },
 });

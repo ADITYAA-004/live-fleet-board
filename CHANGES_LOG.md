@@ -20,6 +20,7 @@ Append-only: never edit or delete old entries.
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
 | 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-16 | Written docs, final checklist, video staging instructions, and transcript inventory reconciled against source and current evidence; the required 5–10 minute video remains pending from the user. |
+| 11 | Browser-triggered burst | 🟨 In progress | 2026-10-17 | Button, Vite proxy, automated checks, and direct/proxied response comparison passed; browser confirmation is pending from the user. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -63,6 +64,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-17 17:05] Step 11 — Browser burst control added
+**Prompt summary:** Add a dashboard button that POSTs to the existing dev burst endpoint through Vite, without changing the freshness store, render loop, or server burst logic.
+**Files created:** none.
+**Files modified:** `client/src/App.jsx` — click-only request state, button, readable result/error status; `client/src/style.css` — minimal button/status layout; `client/vite.config.js` — HTTP `/burst` proxy to the configured server port; `README.md` — explain the page control and dev-only endpoint; `CHANGES_LOG.md` — record Step 11.
+**Files deleted:** none.
+**What changed (plain English):** Added “Trigger burst now” beside the metrics panel. The page displays “Burst started.” when the server returns `started: true`, “A burst is already running.” for `started: false`, and a readable failure message if the request cannot reach the server or receives an error. Vite forwards `/burst` to the same server port used by the `/feed` proxy. No dependency was added.
+**Why / design reasoning:** A development-only HTTP control lets a person demonstrate bursts from the browser without opening a terminal; its state changes only on a button request and does not affect WebSocket message handling or rAF publishing.
+**Tests run & REAL results:** Node `v24.22.0`, npm `11.19.1`. `npm test` → 24 passed, 0 failed in 9.780 s; normal feed 180 messages / 3.013 s (59.74/sec); short burst 6,002 messages / 2.010 s (2,986.07/sec), with 647 out-of-order frames and 647 stale rejects. `npm run build --workspace=client` → PASS; Vite 8.3.4 transformed 22 modules, 375 ms. Live proxy check: direct server endpoint returned HTTP 200 `{"ok":true,"started":true}` on port 61183; Vite-proxied endpoint returned the identical status/body on port 61185. `git diff --check` passed.
+**Verified:** Server endpoint and actual Vite dev proxy were exercised using fresh servers on ephemeral ports, and direct/proxy responses matched. Tests and production client build passed. `client/src/lib/fleetStore.js`, `client/src/lib/renderLoop.js`, and `server/simulator.js` / burst delivery code were not changed.
+**Not verified:** The browser button interaction, the visible BURST indicator after clicking, and the visible network error with the server stopped remain pending the user's browser check.
+**Known issues / limitations:** The button is a development control backed by the existing dev-only endpoint. An unrelated pre-existing working-tree edit in `DEMO_SCRIPT.md` was left untouched and will not be included in this commit.
+**Deviations from spec:** None. No new dependencies and no changes to the store, render loop, or server burst/out-of-order logic.
+**Next step:** Manually open the page, click the button, verify burst status, stop only the server and verify the error message; then report browser confirmation.
 
 ### [2026-10-16 23:38] Step 10 — Final submission materials prepared; video pending
 **Prompt summary:** Inspect the final submission request, verify the project and source requirements, complete the submission docs/checklist, run tests/build/load-test, and prepare a normal GitHub publication without fabricating the video.

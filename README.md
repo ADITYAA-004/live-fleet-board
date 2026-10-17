@@ -48,6 +48,7 @@ npm start
 ```
 
 `POST /burst` is a development-only endpoint and returns JSON indicating whether a burst started.
+The dashboard also has a **Trigger burst now** button; Vite forwards its `POST /burst` request from the page on port 5173 to the server port, like the `/feed` proxy, so the endpoint stays a development control without needing a terminal.
 
 ## What the metrics mean
 
