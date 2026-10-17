@@ -28,4 +28,8 @@ Target length: about 8–9 minutes. Keep the browser, server terminal, and a Pow
 - [ ] In a terminal, run `npm test` and show the passing summary.
 - [ ] Run `npm run load-test` and show its baseline, burst, stale-reject, freshness, sequence, memory, and automatic-timing report. Say that its age is headless store age, not browser paint.
 
+Run taskkill /F /IM node.exe.
+Window 1: npm run start --workspace=server
+Window 2: npm run dev --workspace=client
+
 The AI segment is grounded in the single real Step 1 row in the project's AI Suggestions Log. Do not substitute either Step 9 harness bug for an AI suggestion; no such attribution is recorded.

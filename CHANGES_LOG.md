@@ -20,7 +20,7 @@ Append-only: never edit or delete old entries.
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
 | 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-17 | DECISIONS.md now covers the required choice comparison, costs, trade-off, assumptions with failure cases, stack statement, evidence-based worker rationale, and blank hours line; video remains pending. |
-| 11 | Browser-triggered burst | 🟨 In progress | 2026-10-17 | Button, Vite proxy, automated checks, and direct/proxied response comparison passed; browser confirmation is pending from the user. |
+| 11 | Browser-triggered burst | 🟨 In progress | 2026-10-17 | User's Chrome recording confirms initial, started, already-running, BURST, and normal readings; server-stopped error text remains unconfirmed. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
@@ -64,6 +64,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-17 17:16] Step 11 — Browser button behavior confirmed; stopped-server error pending
+**Prompt summary:** Record the user's Chrome screen-recording results for the browser burst button exactly as reported, keep the server-down error unconfirmed, then stage, commit, and push.
+**Files created:** none.
+**Files modified:** `CHANGES_LOG.md` — update the Step 11 status note and add the user's manual browser evidence. `DEMO_SCRIPT.md` — included in the requested `git add .` because it already had a user working-tree edit; this task did not modify its contents.
+**Files deleted:** none.
+**What changed (plain English):** The user-reported Chrome recording showed “No burst request yet” before a click; “Burst started” after the first click; BURST with incoming 2,979 to 3,034 updates/sec, React commits/sec 84 against 107 rAF callbacks/sec, and peak staleness 511 ms; a second click during the burst showed “A burst is already running.” Between bursts, incoming was 60–61/sec, commits 59–60/sec, rAF 121/sec, and maximum staleness about 485–488 ms. The server-stopped error message was not observed and remains pending.
+**Why / design reasoning:** Keep the implementation's browser verification separate from the remaining unobserved error state and accurately preserve the user's supplied measurements.
+**Tests run & REAL results:** No automated tests were run; this task only records a user-performed browser check. `git diff --check` → PASS. The user requested `git add .`; `DEMO_SCRIPT.md` therefore remains part of this commit as a pre-existing edit, including its existing `taskkill /F /IM node.exe` line.
+**Verified:** The reported browser observations were supplied directly by the user and recorded as such. The Step 11 started/already-running states and normal/burst metric values are marked as user-confirmed; the server-down error remains explicitly not confirmed.
+**Not verified:** No independent browser session was run. The server-stopped button error behavior remains unconfirmed.
+**Known issues / limitations:** Step 11 remains in progress until the server-down error text is manually observed. `DEMO_SCRIPT.md` contains a command that terminates all `node.exe` processes if run; it was not executed in this task.
+**Deviations from spec:** None.
+**Next step:** Observe and report the button's error text while the server is stopped; then update Step 11 status if confirmed.
 
 ### [2026-10-17 17:09] Step 10 — DECISIONS.md aligned with required checklist
 **Prompt summary:** Review DECISIONS.md against the nine requested criteria, report gaps before editing, then fill them using only figures already recorded in TEST_RESULTS.md or CHANGES_LOG.md.
