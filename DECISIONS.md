@@ -1,60 +1,76 @@
-# Design decisions
+# Live Fleet Board Decisions
 
-## What I chose to run and why, versus the alternatives
+## What I chose and why
 
-I chose a React dashboard fed by a separate Node.js WebSocket server. The simulator sends timestamped updates; the browser accepts each bus's newest sequence into a latest-state map and publishes snapshots with `requestAnimationFrame`. That division keeps transport, freshness checks, and rendering separate. It also lets the server deliberately reorder some burst deliveries so the sequence guard can be exercised against the condition it is meant to prevent.
+I chose React with a Node.js WebSocket server because the brief names that stack. I built a 30-bus simulator, a per-bus sequence guard, a latest-state map, and a requestAnimationFrame publish loop. The client keeps the newest accepted update for each bus instead of replaying every position. That gives a dispatcher a current view for a hold/no-hold decision.
 
-For the dashboard, I chose to overwrite intermediate updates in the latest-state map rather than queue them. For transport, I chose WebSocket push rather than polling. For the current state model, I chose a small plain-JavaScript store instead of a general state library. These choices fit a single-page, 30-bus simulation whose goal is current state, not a replayable movement history. The measured runs are evidence for this tested scope, not a capacity claim for a production fleet.
+## Setup and complexity costs
 
-## Alternatives seriously considered and rejected
+Setup took troubleshooting. npm install on Node 23.1.0 failed certificate verification with UNABLE_TO_VERIFY_LEAF_SIGNATURE. I installed a newer Node LTS and set NODE_USE_SYSTEM_CA=1 for the install while keeping TLS verification enabled. Codex was first opened on the wrong folder, and I moved the project work into C:\Users\adity\OneDrive\Desktop\busfleet, which is inside OneDrive. My first two screen recordings were silent or captured the wrong tab, so I had to redo them. I did not track setup time separately; my total reported project time is 15 hours.
 
-- **React `setState` for every message:** unsuitable here because it ties UI work to feed arrivals, including burst traffic, even though the display cannot present every intermediate update.
-- **Queue every update:** unsuitable because it preserves the full motion history but can force the dashboard to replay old positions after the feed has moved on. That conflicts with the dispatcher's need to decide from current state.
-- **Polling:** unsuitable for this continuous feed because it adds repeated request/response work and can leave the view between polls without the newest update.
-- **Server-Sent Events:** unsuitable for the chosen transport boundary because the project already uses WebSocket and exercises that connection end to end. SSE could carry server-to-browser telemetry, but would replace rather than simplify the tested boundary.
-- **Redux or another state library:** unsuitable for the current state shape: one latest update per bus and one snapshot publisher. It would add a dependency and concepts without a demonstrated need in this dashboard.
-- **Arrival-order “last write wins”:** unsuitable because burst frames are deliberately delayed. An older sequence can arrive later and otherwise restore an old position or OPEN door state.
-- **A Web Worker:** not added for the tested scope. The browser measurements show the application meeting the recorded freshness target while parsing on the main thread, but they do not measure JSON-parse CPU time or isolate parsing as a cost. The measured evidence and its limits are explained below; profiling would be required before deciding a worker is warranted.
+Measured in the clean-clone check: npm install added 42 packages in 11 seconds.
 
-## Setup time, operational complexity, and moving parts
+The normal launch is one command, npm start, which uses concurrently to run the server and Vite client. The moving parts are npm workspaces, the simulator and burst scheduler, the ws WebSocket server, Vite and its /feed and /burst proxies, the client store, the animation-frame loop, and the React dashboard. Testing disconnect behavior also takes separate terminals so I can stop only the server while leaving the browser client available.
 
-The clean-clone check in `docs/TEST_RESULTS.md` installed 42 packages in 11 seconds. The documented setup is `npm install`, followed by the single user-facing startup command `npm start`. That command starts both the Node server and Vite client through `concurrently`; Vite proxies the browser's WebSocket feed and development burst request to the server.
+## Alternatives I considered and rejected
 
-The small setup has several runtime pieces: the simulator and its normal/burst schedulers, the HTTP/WebSocket server, Vite's development server and proxies, the browser's sequence-guarded store and render loop, and the React dashboard. Tests and the load-test harness add verification code. Operationally, the person running the demo needs the server and client available together; a server-only stop is useful for checking disconnect behavior. There is no database, authentication service, or deployment layer. The complexity cost is coordinating timestamps, per-bus sequence state, intentional out-of-order delivery, request errors, and cleanup across those pieces.
+I rejected React setState for every message because burst arrival rate would drive React work directly. In one browser recording, about 2,500 updates per second arrived while React committed 78 times per second and the browser offered 121 animation frames per second.
 
-## Rejected Web Worker, based on measured evidence
+I rejected queueing every update and draining the queue per frame because it preserves intermediate positions that are already old and adds storage and processing. If I drain the queue but show only its last value, the queue still does work that the latest-state map avoids.
 
-In the user's browser recording, captured mid-burst, the incoming rate read 2,525 then 1,281 updates/sec, React commits read 78 then 70/sec, and browser animation-frame callbacks read 121/sec. Current maximum staleness read 201 then 481 ms, with a 10-second peak of 502 ms. Normal traffic later showed current maximum staleness of 470–497 ms and a 10-second peak of 502–508 ms. In the headless load test, the worst sampled per-bus maximum age in the latest recorded run was 432 ms, below the 1,000 ms limit. These figures are recorded in `docs/TEST_RESULTS.md`.
+Server-side throttling to one update per vehicle per tick is a legitimate way to trade motion detail for freshness at the source. I did not make it the main correctness mechanism because out-of-order delivery is part of this feed. A server tick would not remove the need for the per-vehicle sequence guard, and the client must stay correct for whatever the server sends. Server-side coalescing would be a good complement at larger scale.
 
-Those measurements show that freshness and render cadence met the recorded expectations in the tested setup; they do not establish that JSON parsing is free or prove that a larger fleet needs no worker. I rejected adding a worker now because the project has no measured parse-time or main-thread CPU evidence showing that a worker is needed. If profiling identifies parsing or store work as a bottleneck at a real target scale, a worker can be reconsidered with that evidence.
+I did not add a Web Worker. With parsing on the main thread, the recorded browser staleness peaks were 502 ms for the captured burst, 502–508 ms during normal traffic, and 511 ms in a separate button-triggered burst report. Those observations stayed under about 560 ms, so I saw no sign that the main thread was limiting freshness in this setup. I did not measure JSON parse time, so I cannot claim parsing was cheap or prove a worker would not help. I would profile before adding one.
 
-## Trade-off: freshness over complete motion
+I rejected polling because repeated request/response cycles add work and can leave the display waiting for the next poll. Server-Sent Events could also carry one-way telemetry, but the brief specified WebSocket, so WebSocket was a requirement rather than a transport choice.
 
-The explicit tension is **freshness over complete motion**. Choosing freshness costs the dashboard intermediate positions and makes it unsuitable as a full movement-history or replay view: if several updates arrive between paints, only the newest accepted state is shown. Choosing complete motion instead would mean queuing and rendering older updates after newer ones have already been produced; that costs freshness and can leave a dispatcher deciding from a position or door state that is no longer current.
+I did not add Redux or another state library because one latest value per bus and a sorted snapshot were enough for this scope. I rejected arrival-order last-write-wins because a delayed older message could arrive later and restore an old position or OPEN door. Per-bus sequence numbers determine which update is newer.
 
-For a dispatcher making a hold/no-hold decision, a current, sequence-validated snapshot is more useful than a faithful animation of every step that has already passed. The display still shows the latest accepted state and its age, and flags excessive staleness. The trade-off does not claim to preserve every event; a separate history or audit feature would need its own design if that becomes a requirement.
+## The trade-off I chose
+
+I chose freshness over complete motion. I lose intermediate positions when updates arrive faster than the browser publishes them, so the table is not a movement history or replay. In return, it shows the newest accepted state and avoids spending render work on stale intermediate positions. The client still validates and processes each message, but it does not queue each message for a future render.
+
+For a dispatcher deciding whether to hold a bus, I prefer its newest sequence-validated position and door state over a smooth replay of where it has already been. The age and STALE indicators make the age of that current state visible.
 
 ## Assumptions and what fails if wrong
 
-- **Assumption: the browser and server share a machine clock in the tested setup.** What fails if wrong: clock skew distorts `now - ts`, so displayed age and the freshness threshold can be misleading.
-- **Assumption: the feed is simulated telemetry with the documented fields and behavior.** What fails if wrong: this demo does not establish sensor validity, delivery guarantees, or operational safety for dispatch decisions using real vehicle data.
-- **Assumption: each bus's `seq` increases monotonically within a `runId`, and a restart changes `runId`.** What fails if wrong: valid updates may be rejected as stale, or old updates may be accepted after a reset.
-- **Assumption: the development page reaches one authoritative server through the Vite proxy.** What fails if wrong: clients connected to inconsistent instances may disagree on run IDs, sequence histories, or burst-control responses; multi-instance coordination is not implemented.
+- I assume the browser and server share one machine clock, because age is calculated as now minus ts. If that is wrong, clock skew can make displayed age misleading.
+- I assume each bus sequence increases within one runId and a server restart changes runId. If that is wrong, the client can reject valid updates or accept an update from an earlier run.
+- I assume the feed is simulated telemetry with the documented fields. If that is wrong, these tests say nothing about the validity or safety of real vehicle sensors.
+- I assume one authoritative server instance sits behind the Vite proxy. If that is wrong, instances can disagree about runId, sequence history, and burst responses; multi-instance coordination is not implemented.
+- I assume the 1,000 ms budget means now minus the timestamp of the newest accepted update. At about two updates per second per bus, age naturally swings from 0 to about 500 ms even with a perfect pipeline. The recorded browser peaks were 502 ms for the captured burst, 502–508 ms in normal traffic, and 511 ms in a separate burst-button recording. Those readings show little added delay in this setup. If this assumption is wrong, a slower-reporting bus could show red even with an instant pipeline because feed cadence itself would count as staleness.
 
-## Deviation from the named stack
+## Stack and implementation details
 
-There is **no deviation from the named React + Node.js WebSocket stack**. The implementation uses React with Vite, Node.js with the `ws` WebSocket library, npm workspaces, and `concurrently` for the one-command development startup. Vite proxies `/feed` and `/burst` to the server during development. `POST /burst` and the dashboard's **Trigger burst now** button are development controls for the existing burst mechanism; they do not replace the WebSocket telemetry path or alter its burst/out-of-order logic.
+I kept the named React plus Node.js WebSocket stack. The implementation adds Vite, the ws library, concurrently, and npm workspaces. Vite proxies /feed and /burst to the Node server during development. The development-only POST /burst endpoint and Trigger burst now button control the existing burst generator. They do not replace the WebSocket telemetry path. These are implementation details around the requested stack, not a stack change.
+
+## What breaks first at 10x — prediction, not measurement
+
+At ten times the fleet size, 300 buses producing about 100 updates per second each during a burst would send about 30,000 messages per second. I predict the main-thread JSON parse and per-message guard, followed by the server's per-message fan-out, would be the first pressure points. I have not measured this scale. The store holds one entry per bus, so it does not retain an ever-growing render queue.
+
+I would profile the target workload first. Per-vehicle server coalescing per tick and batching could reduce work while keeping the client sequence guard. I would consider per-client backpressure using ws.bufferedAmount and add a worker only if profiling shows parse or store work is a bottleneck.
+
+## Deliberately left out
+
+- History or replay: I chose current state rather than retaining every movement.
+- Map view: Grid coordinates are enough to show the fleet table.
+- Persistence: This demo uses in-memory simulated state.
+- Authentication: The local development demo does not need user accounts.
+- Multiple server instances: The project assumes one authoritative simulator.
+- Styling beyond a minimal readable table: I prioritized correctness.
+- A Web Worker: I would add one only if profiling justifies it.
+- Server-side batching: I kept individual updates to exercise the client's ordering guard; batching remains a possible complement.
 
 ## What I would do next
 
-First, complete the remaining human verification: confirm the Step 11 button in a browser, including the already-running and server-unavailable messages, and record the required demonstration video. The current test report distinguishes automated evidence from browser readings supplied by the user. I would keep that distinction in any final submission and avoid describing the development server as a production deployment.
+If I extend this for a larger fleet, I would profile parsing, sequence validation, server fan-out, and per-client backlog at the intended traffic rate. I would choose coalescing, batching, or backpressure from those measurements, then compare the result against the current freshness behavior.
 
-If the target changes from this simulation to live vehicles or a larger deployment, I would profile the actual bottleneck before adding infrastructure. In particular, I would measure main-thread parse time, server fan-out, per-client backlog, and clock skew under the intended network and fleet size. I would preserve the freshness guard and only introduce a worker, batching, or multiple-server coordination when measurements and requirements justify the added complexity.
+I would also test clock assumptions and decide whether dispatchers need event history in addition to the latest-state table. If they do, I would design history as a separate feature so replay does not weaken the live freshness guard.
 
-Next actions:
+Next, I would:
 
-- Confirm the browser-triggered burst and request-error behavior.
-- Record and deliver the 5–10 minute video using `DEMO_SCRIPT.md`.
-- For any larger or live deployment, profile first, then select only the scaling changes supported by those measurements.
+- Profile the client and server at the target fleet size.
+- Measure coalescing, batching, and per-client backpressure.
+- Reassess worker use, table virtualization, clock handling, and multi-instance coordination.
 
-Hours spent:
+Hours spent: 15

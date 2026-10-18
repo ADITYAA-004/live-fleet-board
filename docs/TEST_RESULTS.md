@@ -40,7 +40,7 @@ Maximum observed per bus across all three bursts, sampled every 50 ms:
 | Acceptance test | Status | Evidence |
 |---|---|---|
 | Normal operation | PASS | Headless baseline: 60.10 updates/sec across 30 buses. In the user's Chrome screen recording after the burst, normal traffic read 60–61 updates/sec, React commits 58–60/sec, rAF callbacks 116–121/sec, current max staleness 470–497 ms, and ten-second peak max staleness 502–508 ms. All 30 buses kept updating and none showed STALE. |
-| Automatic burst | PASS | The user's server terminal logged `[burst] first automatic burst scheduled in 45000ms after first client connection`, followed about 45 seconds later (about 34 one-second log lines) by `[burst] started #1: 6000ms at 100 updates/sec/bus target`, without a manual trigger. The same run's burst rates were 2,978, 3,048, 2,990, 3,049, and 3,031 msgs/sec. A client disconnect/reconnect did not reschedule the burst. The load test measured 45.00 s and 45.02 s. The browser's automatic page-side transition was not separately recorded; the existing page recording shows a manually started burst. |
+| Automatic burst | PARTIAL | Automated timing and server logs verify a burst starts about 45 seconds after the first client connects and a later client does not reset the timer. The page-side automatic transition and visible feed-rate rise have not been separately recorded; the existing page recording shows a manually triggered burst. Capture the automatic transition in the final video. |
 | Freshness | PASS | The headless load test's worst per-bus max age was 439 ms. In the screen recording, current max staleness during the burst read 201 then 481 ms, and the ten-second peak read 502 ms (≤1000 ms). In normal traffic, current max read 470–497 ms and the ten-second peak read 502–508 ms (≤1000 ms). No bus showed STALE. |
 | Out-of-order protection | PASS | The three bursts produced 5,826 stale rejections; displayed regressions/resurrections were 0; BUS-07 ended CLOSED at its highest produced sequence. The user also reported seeing the injected BUS-07 log line in the browser run. |
 | Bounded rendering | PASS | Store size remained 30 and the three-burst heap increase was 1,134 KiB in the headless soak; fake-rAF tests coalesce 1,000 updates into one publish. In the screen recording, burst incoming rate read 2,525 then 1,281/sec while commits read 78 then 70/sec and rAF callbacks read 121/sec; normal commits were 58–60/sec against 116–121 rAF callbacks/sec. The relevant browser bound is the observed rAF cadence, not an assumed ~60 commits/sec cap. |
@@ -81,7 +81,7 @@ The automatic page-side transition was not separately recorded in the prior brow
 
 ## Submission status
 
-The source, scripts, README, `DECISIONS.md`, and three exported Codex session transcripts are present. The transcript directory also contains two Step 0/1 setup notes; the three exported transcript files contain 158 User/Assistant Markdown headings (148 + 5 + 5). A prior log entry reported 156; the current file count is the corrected inventory. The required 5–10 minute video remains **PENDING USER**. Do not treat this project as fully submitted until that video is recorded and added.
+The source, scripts, README, DECISIONS.md, and three exported Codex session transcripts are present. The transcript directory also contains two Step 0/1 setup notes; the exports contain 158 User/Assistant message headings (148 + 5 + 5). No newer project session JSONL logs were found under %USERPROFILE%\.codex\sessions, and docs/ai-transcript/planning-chat.md is absent. On 2026-10-18, the user reported that the demo recording exists and is being edited; no MP4 was found in the repository. Final editing/export and delivery remain to be done.
 
 ## Final-submission preparation verification — 2026-10-16
 
@@ -95,4 +95,31 @@ Fresh verification run for the final-submission preparation task. It supersedes 
 - Three-burst soak: heap used `8,782 KiB before -> 9,904 KiB after` (reported growth `1,123 KiB`), within the `12,288 KiB` allowance. Shutdown cleanup passed.
 - Automatic timer: first burst began 45.01 s after client 1 connected. Client 2 connected 20.02 s after client 1; the burst began 25.00 s after client 2, confirming it did not restart the timer.
 
-No browser was opened and no clean-clone install was repeated in this run. Prior browser readings in this report were supplied by the user; they remain distinct from these headless test results. The automatic page-side transition has not been separately recorded. No video is present, so Step 10 remains in progress.
+No browser was opened and no clean-clone install was repeated in this run. Prior browser readings in this report were supplied by the user; they remain distinct from these headless test results. The automatic page-side transition has not been separately recorded. At the time of this 2026-10-16 verification, no video was present. On 2026-10-18, the user reported a recording exists and is being edited; no final MP4 was found in the repository.
+
+## Step 11 manual browser verification — user-reported, 2026-10-17
+
+The user manually tested the dashboard and supplied screenshots and terminal output. These observations are separate from the historical automated results above; no automated test, build, or load test was rerun for this update.
+
+- **Normal feed:** 30 vehicles were displayed, incoming rate was approximately 60 updates/sec, React commits were approximately 59–60/sec, and the feed state displayed normal.
+- **Burst feed:** One screenshot showed approximately 2,953 incoming updates/sec and BURST. The stale-update rejection counter increased during burst traffic. The screenshot value is a sampled browser reading, not an automated benchmark.
+- **Backend unavailable:** With the backend stopped and the client still open, clicking Trigger burst now displayed exactly: “Burst request failed: Server returned HTTP 502.” Separately, the dashboard displayed “WebSocket: disconnected” and incoming updates/sec fell to 0. The HTTP 502 is the button's response; the disconnected WebSocket is a separate status.
+- **Recovery:** After the backend restarted, the WebSocket reconnected, the burst button worked again, and the feed returned to normal after the burst ended. This records the observed recovery only; it is not a claim about every failure scenario.
+- **Shutdown terminal output:** During connection teardown/shutdown, the terminal printed repeated “WebSocket send error: write ECANCELED” messages and client-disconnection messages, followed by “SIGINT received; shutting down” and “server stopped.” This is the output observed during teardown. It is not described as error-free shutdown, and the ECANCELED messages alone do not establish a functional defect.
+
+These are user-reported manual browser and terminal observations from 2026-10-17, not a new automated test run.
+
+## Final submission verification — 2026-10-18
+
+These checks were run for this final submission pass. The browser observations elsewhere in this report remain user-reported; no new browser session was run.
+
+- Environment: Node.js v24.22.0, npm 11.19.1.
+- npm test: PASS, 24 passed and 0 failed in 10.453 seconds. The feed integration test received 182 messages in 3.004 seconds (60.59/sec). The burst integration test received 6,002 messages in 2.017 seconds (2,975.71/sec), with 639 out-of-order frames and 639 stale rejects.
+- npm run build --workspace=client: PASS; Vite 8.3.4 transformed 22 modules and built in 374 ms.
+- npm run load-test: PASS. Baseline: 600 messages in 10.00 seconds (59.99/sec), all 30 IDs, and no normal-mode reordering.
+- Three-burst load and soak: burst averages were 2,992.85/sec, 2,994.34/sec, and 2,993.85/sec; peak one-second buckets were 3,060, 3,033, and 3,028/sec. Stale rejects were 1,930, 1,866, and 1,909 (5,705 total). State regressions/resurrections were 0. All 30 buses stayed within 1,000 ms; the worst sampled per-bus maximum was 126 ms on BUS-01, and p99 across samples was 43 ms. The store retained 30 entries and every accepted sequence converged to the highest produced sequence.
+- Memory soak: heap used was 8,792 KiB before and 9,911 KiB after, a 1,119 KiB increase within the 12,288 KiB allowance. Shutdown cleanup passed.
+- Automatic timing: the burst started 45.01 seconds after client 1 connected. Client 2 connected 20.02 seconds after client 1; the burst started 24.99 seconds after client 2, confirming the timer was not reset.
+- No clean-clone install or browser check was repeated in this pass. The earlier clean-clone result and the user's Step 11 browser report remain separate evidence.
+
+The automated automatic-timing check passes. The full acceptance item remains partial because the browser's visible feed-rate rise during an automatically started burst has not been separately recorded. React commits and animation-frame callbacks are reported as separate measurements; they are not a compositor-paint latency measurement.

@@ -7,4 +7,5 @@ coverage/
 *.log
 .DS_Store
 Thumbs.db
-/submission/live-fleet-board-demo.mp4
+*.mp4
+/submission/*.zip

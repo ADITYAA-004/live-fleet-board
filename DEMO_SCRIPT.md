@@ -1,35 +1,41 @@
-# Live Fleet Board video outline
+# Live Fleet Board Demo Script
 
-Target length: about 8–9 minutes. Keep the browser, server terminal, and a PowerShell terminal visible when demonstrating live behavior. Use actual readings shown during recording; do not replace missing browser measurements with the headless load-test numbers.
+Target length: about 8 minutes. Follow the four questions in the assignment order. Use only readings visible during this recording. Distinguish user-recorded browser results from automated load-test results.
 
-## Timed outline
+## 0:00–3:15 — What I chose and why
 
-| Time | Segment | Talking points / action |
-|---|---|---|
-| 0:00–0:35 | Start and introduce | Start `npm start`, open the page, connect the first browser client, and explain the goal: stay fresh during bursts without allowing stale updates to overwrite newer states. The automatic timer starts on this first connection. |
-| 0:35–1:25 | Architecture and choices | While normal traffic runs, trace simulator → WebSocket `/feed` → sequence-guarded latest-state map → `requestAnimationFrame` snapshot → React table and honesty panel. Explain why intermediate states are coalesced. |
-| 1:25–2:05 | Automatic burst and stale protection | Keep the page and server log visible through the expected ~45-second first-burst delay. Show the automatic `[burst] started` line, measured BURST/rate state, injected BUS-07 CLOSED-before-OPEN line, and stale count. This page-side automatic transition was not separately recorded before; capture it in this submission video. |
-| 2:05–2:45 | Alternatives | Cover per-message `setState`, queueing, a worker, polling, SSE, Redux, and arrival-order last-write-wins. Explain why per-bus `seq` determines freshness. |
-| 2:45–3:30 | Measured results | Show the latest run in `docs/TEST_RESULTS.md`: 59.94 updates/sec baseline; burst averages of 2,992.85, 2,995.01, and 2,998.33/sec; 5,924 stale rejects; zero regressions; worst sampled headless age 432 ms. Separate these store-age numbers from the user's earlier browser readings. |
-| 3:30–4:10 | Manual burst and honesty panel | Trigger `POST /burst` from PowerShell and show incoming rate, React commits/sec, rAF callbacks/sec, staleness, and door state. Read only the values actually visible in this recording. |
-| 4:10–4:45 | Disconnect behavior | Stop only the server, leave Vite/browser running, and show disconnected status, rising bus ages, and incoming rate falling to zero. Restart the server if time allows. |
-| 4:45–5:35 | What breaks at 10× scale | Explain that 300 buses and 30,000 burst messages/sec are a linear projection, not a measured result. Cover main-thread JSON parsing, server fan-out/backpressure, table virtualization, clock skew, and multiple server instances. Add a worker only after profiling. |
-| 5:35–6:30 | Actual AI suggestion | Use the Step 1 AI Suggestions Log row only. The planning assistant blamed the sandbox's network and recommended running install on the PC. The PC returned HTTP 200; the actual error was Node 23.1.0's `UNABLE_TO_VERIFY_LEAF_SIGNATURE`. Running on the PC served as a diagnostic, not a fix to that diagnosis. The resolution used a newer Node LTS and `NODE_USE_SYSTEM_CA=1`, keeping TLS verification enabled. Explain the engineering lesson: verify the failing layer and preserve certificate checks. |
-| 6:30–6:55 | Tests and close | Run `npm test` and `npm run load-test`, show their real summaries, and state that load-test age is headless store age rather than browser paint. Close by stating that the video is the final pending submission item. |
+Start with the page running at http://localhost:5173. Show the 30 bus rows, connected status, normal feed, and honesty panel. Explain that I chose React and a Node WebSocket server because the brief specified them. Point to the sequence guard, latest-state map, and animation-frame publishing: the table keeps the newest accepted state per bus rather than replaying every intermediate position.
 
-## Live-demo checklist
+If possible, keep the first browser client connected until the server starts its automatic burst. Show the server scheduling and burst-start lines, and show the page feed indicator and current staleness. The automatic timer was measured at about 45 seconds after the first client connected, but the page-side automatic transition was not separately recorded in the earlier browser capture. If it does not appear on screen, say so; do not claim that it did.
 
-- [ ] Start with `npm start`; open <http://localhost:5173> and show connected status, all bus rows, and normal feed activity.
-- [ ] For the automatic burst, connect the first browser client, show the server's scheduled line, and keep the recording running until the server logs the first burst about 45 seconds later. This video should capture the automatic page-side transition missing from earlier recordings.
-- [ ] Trigger a burst from PowerShell: `Invoke-RestMethod -Method Post http://localhost:8080/burst`.
-- [ ] Show the server's `[burst] injected out-of-order: BUS-07 ... CLOSED delivered before ... OPEN` line and the stale-rejection count increasing in the page.
-- [ ] Show the honesty panel during normal traffic and the burst: incoming rate, React commits/sec, rAF callbacks/sec, current/peak age, and normal/BURST indicator. Read out the values actually visible in this recording.
-- [ ] Stop only the Node server process. Leave the browser/Vite page open; show disconnected status, bus ages rising and turning red/STALE, and incoming rate falling to zero. Restart the server and show reconnection if time allows.
-- [ ] In a terminal, run `npm test` and show the passing summary.
-- [ ] Run `npm run load-test` and show its baseline, burst, stale-reject, freshness, sequence, memory, and automatic-timing report. Say that its age is headless store age, not browser paint.
+When normal traffic returns, press Trigger burst now. Read the button response and the current max staleness aloud. Point out the injected BUS-07 CLOSED-before-OPEN line and the stale-rejection counter. Describe the button-triggered browser readings only as readings from those recordings, not as a guaranteed result for this take.
 
-Run taskkill /F /IM node.exe.
-Window 1: npm run start --workspace=server
-Window 2: npm run dev --workspace=client
+## 3:15–5:00 — Alternatives I considered and rejected
 
-The AI segment is grounded in the single real Step 1 row in the project's AI Suggestions Log. Do not substitute either Step 9 harness bug for an AI suggestion; no such attribution is recorded.
+Show the alternatives section in DECISIONS.md. Explain why I did not call React state for every message or queue every update for a later frame. Then explain that server-side coalescing is a valid complement, but the client still needs its sequence guard because this feed deliberately delivers updates out of order. I did not add a worker because I have not measured parse time; the recorded freshness readings do not establish that a worker is unnecessary at every scale. Polling adds repeated request/response cycles. SSE can carry one-way telemetry, but the brief required WebSocket. The small current-state store did not need Redux, and arrival order cannot identify the newest update.
+
+## 5:00–6:30 — What I predict breaks first at 10x
+
+Show the 10x prediction in DECISIONS.md. Explain that 300 buses at about 100 burst updates per second each would produce about 30,000 messages per second. This is a projection, not a load-test result. I expect main-thread JSON parsing and sequence checks, followed by per-message server fan-out, to need profiling first. I would test source-side coalescing, batching, and per-client backpressure; I would add a worker only if measurements justify it.
+
+## 6:30–8:00 — One incorrect or lazy AI suggestion and how I handled it
+
+Show both entries in the AI Suggestions Log in CHANGES_LOG.md. First, the planning assistant attributed npm install failure to the sandbox lacking network access. My PC reached the registry; the actual error was Node 23.1.0 rejecting the certificate. I installed a newer Node LTS and used NODE_USE_SYSTEM_CA=1 without disabling TLS verification.
+
+Second, the planning assistant treated about 60 React commits per second as the upper bound. That assumed a 60 Hz display. My browser offered about 121 animation frames per second, and the recorded burst showed 78 commits per second while about 2,500 updates per second arrived. I corrected the criterion to use the browser's offered frame rate, not a fixed 60 commits per second.
+
+## Live demo checklist
+
+- [ ] Show normal traffic, all 30 rows, connected status, and the measured metrics panel.
+- [ ] Keep the first browser connection open and capture an automatic burst starting on its own. The earlier page recording showed a manually triggered burst; do not claim it showed the automatic transition.
+- [ ] Press Trigger burst now and read the response and current staleness aloud.
+- [ ] Show the server's [burst] injected out-of-order line and the stale-rejection count increasing.
+- [ ] Stop only the server, leave the Vite client and browser open, and show disconnected status and ages rising. Wait until bus age exceeds 1,000 ms and show the red STALE badge; if it does not appear, report that as a failed check.
+- [ ] Restart the server and report the observed reconnect behavior.
+- [ ] Run npm test and npm run load-test from the project root and show their actual output.
+
+## Do not show
+
+- README, PROJECT_CONTEXT, or FINAL_SUBMISSION_CHECKLIST packaging notes.
+- The OBS control window.
+- Personal browser bookmarks.
