@@ -17,8 +17,8 @@ Append-only: never edit or delete old entries.
 | 5 | Sequence guard + latest-state map | ✅ Done | 2026-10-16 | Store tests and manual browser evidence confirm stale updates do not resurrect old state; current burst/normal readings are recorded in the latest browser follow-up. |
 | 6 | requestAnimationFrame render loop | ✅ Done | 2026-10-16 | Fake-rAF tests, full test suite, client build, and the user's manual browser check passed; exact console rate values were not supplied. |
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
-| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and Chrome screen recording confirm measured normal/burst feed, render, rAF, and staleness values; disconnected-state check is recorded in the Step 3 follow-up. |
-| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user's terminal log confirms the automatic trigger and reconnect did not reschedule it. The page-side automatic transition was not separately recorded. |
+| 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and user-supplied Chrome evidence cover normal/burst metrics and disconnected ages with red STALE badges; compositor paint latency remains unmeasured. |
+| 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user-supplied 7:32 recording now also shows the page-side automatic burst without a button press. |
 | 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-18 | Final documents and automated checks are complete; the user reports the video recording is being edited. Final export/delivery and the absent planning-chat transcript remain user-owned. No newer project session logs were available to export. |
 | 11 | Browser-triggered burst | ✅ Done | 2026-10-17 | User-reported manual Chrome check confirms normal traffic, burst state and stale-counter increase, exact HTTP 502 button message with separate WebSocket disconnection and incoming rate 0, then reconnect/recovery after restart. Shutdown logs included WebSocket send error: write ECANCELED; see the Step 11 follow-up entry for exact context. |
 
@@ -65,6 +65,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-18 22:18] Browser evidence — automatic burst and stale badges
+**Prompt summary:** Record two user-supplied browser observations in the final checklist, test results, and change log; inspect the source ZIP and email-address occurrences; report repository visibility; commit and push the documentation update.
+**Files created:** none.
+**Files modified:** docs/FINAL_SUBMISSION_CHECKLIST.md — marked the automatic-burst page observation and disconnected red STALE state as done based on user-supplied evidence. docs/TEST_RESULTS.md — changed automatic burst from partial to pass, added the new page readings and disconnected ages, and retained the compositor-paint limitation. CHANGES_LOG.md — recorded this task and reconciled Step 8–9 status notes.
+**Files deleted:** temporary ZIP extraction directory under %TEMP% — removed after verification; no project files deleted.
+**What changed (plain English):** Recorded the user's 7:32 demo recording at about 1:40: automatic BURST with incoming about 2,967/sec, commits 66/sec, rAF 75/sec, current max age 56 ms, 10-second peak 529 ms, and the untouched “No burst request yet” button; the supplied server log scheduled the burst 45,000 ms after first connection. Recorded disconnected screenshots with incoming 0, ages about 53,403, 62,667, 75,745, 131,630, and 142,719 ms, and red STALE badges on every row. All browser observations are labelled user-supplied, not independently inspected in this task.
+**Why / design reasoning:** Update the earlier partial automatic-burst status and stale-badge gap from the supplied evidence without presenting it as a Codex-run browser test. Preserve the limitation that React commit and rAF rates do not measure compositor paint latency.
+**Tests run & REAL results:** No tests, build, or load test were run; this was documentation and archive verification only. ZIP extraction check passed: DECISIONS.md contained “What breaks first at 10x” and “Deliberately left out,” its last non-empty line was “Hours spent: 15,” and submission/FORM_ANSWERS.md and submission/VIDEO_ADDON_SCRIPT.md were present. A byte-level scan of repository files and extracted ZIP contents, including nested document/archive contents, found no personal email address; no email contents were displayed. Temporary extraction was removed. GitHub repository page identifies the repository as Public (checked 2026-10-18).
+**Verified:** User-supplied values were transcribed as provided. ZIP-required files/sections were checked after extraction. No personal email address was found in the repository or extracted archive. Repository visibility is shown as Public on GitHub.
+**Not verified:** Browser screenshots and recording were not independently inspected. Compositor paint latency is not measured. No automated checks were run.
+**Known issues / limitations:** Final video export/delivery and the separate planning-chat transcript remain outstanding per the checklist. React commits and rAF callbacks are not compositor-paint latency.
+**Deviations from spec:** none.
+**Next step:** Review the documentation update, then finish and deliver the final video and any required transcript.
 
 ### [2026-10-18 22:05] Final submission pass
 **Prompt summary:** Complete the final submission documents, check the original brief and available transcripts, run automated checks, package the tracked source, and publish the pass.
