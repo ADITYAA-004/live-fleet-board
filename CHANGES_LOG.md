@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and user-supplied Chrome evidence cover normal/burst metrics and disconnected ages with red STALE badges; compositor paint latency remains unmeasured. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user-supplied 7:32 recording now also shows the page-side automatic burst without a button press. |
-| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-18 | Final documents and automated checks are complete; the user reports the video recording is being edited. Final export/delivery and the absent planning-chat transcript remain user-owned. No newer project session logs were available to export. |
+| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-18 | Final documents and automated checks are complete; the source ZIP was refreshed from the published documentation state. Final video export/delivery and the absent planning-chat transcript remain user-owned. No newer project session logs were available to export. |
 | 11 | Browser-triggered burst | ✅ Done | 2026-10-17 | User-reported manual Chrome check confirms normal traffic, burst state and stale-counter increase, exact HTTP 502 button message with separate WebSocket disconnection and incoming rate 0, then reconnect/recovery after restart. Shutdown logs included WebSocket send error: write ECANCELED; see the Step 11 follow-up entry for exact context. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
@@ -65,6 +65,20 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### [2026-10-18 22:24] Correct local commit identity and refresh source ZIP
+**Prompt summary:** Correct only the unpublished documentation commit's author/committer identity, push normally, rebuild the source archive, and record the fix.
+**Files created:** none.
+**Files modified:** CHANGES_LOG.md — recorded the local identity correction, successful push, and archive refresh. Ignored artifact refreshed: submission/live-fleet-board-code.zip.
+**Files deleted:** none.
+**What changed (plain English):** Matched this repository's local Git name/email to the identity on the already-published commit, amended only the single unpublished documentation commit, and pushed normally. Rebuilt the ZIP from the pushed HEAD; it is 221,295 bytes and contains no node_modules, dist, MP4, or PROJECT_CONTEXT.md.pdf.
+**Why / design reasoning:** GitHub rejected the original push because the new commit used a private email identity. The correction affected only the unpublished commit; no published commit or global Git configuration was changed.
+**Tests run & REAL results:** No application tests/build/load test were run. Confirmed the target was exactly one clean local commit ahead before amending; amended commit contained only the three intended documentation files and both metadata addresses matched the published commit. Normal push succeeded. After the amend push, local HEAD and origin/master both were 60d3b5dd762827dd3bd31d2ebc2cea49fe11b444. ZIP listing showed the expected source/documentation top level and zero forbidden entries.
+**Verified:** No published history was rewritten. The first normal push succeeded; the ZIP is Git-ignored. This follow-up CHANGES_LOG entry is recorded in a separate log-only commit.
+**Not verified:** No browser or application runtime checks were run.
+**Known issues / limitations:** Step 10 remains in progress pending final video delivery and the separate planning-chat transcript.
+**Deviations from spec:** none.
+**Next step:** Review the final remote and archive hashes; complete the outstanding video/transcript items.
 
 ### [2026-10-18 22:18] Browser evidence — automatic burst and stale badges
 **Prompt summary:** Record two user-supplied browser observations in the final checklist, test results, and change log; inspect the source ZIP and email-address occurrences; report repository visibility; commit and push the documentation update.
