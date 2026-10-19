@@ -1,0 +1,24 @@
+LIVE FLEET BOARD — FORM ANSWERS (DRAFT)
+
+Project name: Live Fleet Board
+Repository: https://github.com/ADITYAA-004/live-fleet-board
+Project summary: A React dispatch dashboard for 30 simulated buses. A Node.js WebSocket server produces normal and burst telemetry; the browser applies per-bus sequence guards, keeps only latest state, and publishes snapshots on animation frames.
+
+Assumptions (from DECISIONS.md):
+1. The browser and server share one machine clock, and the 1,000 ms budget is measured as now minus the timestamp of the newest accepted update. With about two updates per second per bus, age naturally swings from 0 to about 500 ms. If clocks differ, skew makes displayed age misleading; if feed cadence is slower, a bus may appear stale even with an instant pipeline.
+2. Each bus sequence increases within one runId, and a server restart changes runId. If wrong, the client can reject valid updates or accept an update from an earlier run.
+3. The feed is simulated telemetry with the documented fields. If wrong, these tests do not validate the validity or safety of real vehicle sensors.
+4. One authoritative server instance sits behind the Vite proxy. If wrong, instances can disagree about runId, sequence history, and burst responses; multi-instance coordination is not implemented.
+
+Testing performed in this preparation run:
+- npm test: PASS — 24 passed, 0 failed.
+- npm run build --workspace=client: PASS — Vite built 22 modules.
+- npm run load-test: PASS — 30 buses, freshness/no-resurrection/sequence/soak/automatic-timer checks passed. The headless age metric is not browser paint latency.
+
+Project time: 15 hours (user-reported).
+AI transcripts: The available separate transcript archive contains three exported Codex sessions and two setup notes. It does not claim to include every AI interaction. The planning-assistant transcript is absent; add the original only if required.
+
+Final video URL: [PASTE THE REAL GOOGLE DRIVE LINK AFTER UPLOAD]
+Drive access setting: [SET TO “ANYONE WITH THE LINK — VIEWER” AND VERIFY]
+Form submission confirmation: [FILL AFTER ACTUAL SUBMISSION]
+Unknown assignment-specific fields: [FILL FROM THE ACTUAL FORM; DO NOT GUESS]

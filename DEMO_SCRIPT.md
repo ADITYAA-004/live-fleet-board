@@ -6,7 +6,7 @@ Target length: about 8 minutes. Follow the four questions in the assignment orde
 
 Start with the page running at http://localhost:5173. Show the 30 bus rows, connected status, normal feed, and honesty panel. Explain that I chose React and a Node WebSocket server because the brief specified them. Point to the sequence guard, latest-state map, and animation-frame publishing: the table keeps the newest accepted state per bus rather than replaying every intermediate position.
 
-If possible, keep the first browser client connected until the server starts its automatic burst. Show the server scheduling and burst-start lines, and show the page feed indicator and current staleness. The automatic timer was measured at about 45 seconds after the first client connected, but the page-side automatic transition was not separately recorded in the earlier browser capture. If it does not appear on screen, say so; do not claim that it did.
+My 7:32 demo recording (user-supplied evidence) shows the page-side automatic burst at about 1:40 (Feed state BURST, incoming about 2,967 updates/sec, with the Trigger burst now button still reading "No burst request yet"). If an automatic burst does not appear on screen in a new take, say so rather than claim it.
 
 When normal traffic returns, press Trigger burst now. Read the button response and the current max staleness aloud. Point out the injected BUS-07 CLOSED-before-OPEN line and the stale-rejection counter. Describe the button-triggered browser readings only as readings from those recordings, not as a guaranteed result for this take.
 
@@ -27,10 +27,10 @@ Second, the planning assistant treated about 60 React commits per second as the 
 ## Live demo checklist
 
 - [ ] Show normal traffic, all 30 rows, connected status, and the measured metrics panel.
-- [ ] Keep the first browser connection open and capture an automatic burst starting on its own. The earlier page recording showed a manually triggered burst; do not claim it showed the automatic transition.
+- [ ] Keep the first browser connection open. My 7:32 demo recording (user-supplied evidence) shows the page-side automatic burst at about 1:40 (Feed state BURST, incoming about 2,967 updates/sec, with the Trigger burst now button still reading "No burst request yet"). If an automatic burst does not appear on screen in a new take, say so rather than claim it.
 - [ ] Press Trigger burst now and read the response and current staleness aloud.
 - [ ] Show the server's [burst] injected out-of-order line and the stale-rejection count increasing.
-- [ ] Stop only the server, leave the Vite client and browser open, and show disconnected status and ages rising. Wait until bus age exceeds 1,000 ms and show the red STALE badge; if it does not appear, report that as a failed check.
+- [ ] Stop only the server, leave Vite and the browser open, and wait until a bus age exceeds 1,000 ms. Show the disconnected header and red STALE badge; if it does not appear, report that as a failed check.
 - [ ] Restart the server and report the observed reconnect behavior.
 - [ ] Run npm test and npm run load-test from the project root and show their actual output.
 

@@ -4,7 +4,9 @@ Live Fleet Board is a React dispatch dashboard backed by a Node.js service over 
 
 ## Prerequisites
 
-- Node.js 22.19 or newer (LTS)
+- Tested with Node.js v24.22.0.
+- Recommended: Node.js 22.19 or newer (LTS).
+- `package.json` allows Node.js 20.19 or newer, but I have not tested that range.
 - npm
 
 If `npm install` fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` (for example, due to antivirus or network HTTPS inspection), use Node.js 22.19 or newer and set the system CA option in the current PowerShell session before installing:
@@ -88,6 +90,8 @@ live-fleet-board/
 │   └── src/
 ├── docs/                   # Project specification and session logs
 ├── server/                 # Node.js simulator, WebSocket feed, and configuration
+├── scripts/                # Load test and simulator print script
+├── submission/             # Video script and form answers; ZIPs are ignored by Git
 ├── AGENTS.md               # Project rules
 ├── CHANGES_LOG.md          # Step-by-step change history
 ├── package.json            # npm workspaces and root scripts

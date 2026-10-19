@@ -19,7 +19,7 @@ Append-only: never edit or delete old entries.
 | 7 | Auto burst + out-of-order + door transitions | ✅ Done | 2026-10-16 | Automated checks and user screen recording confirm the table stays current and the injected BUS-07 log appears; recorded burst/normal metrics are in the latest browser follow-up. |
 | 8 | Honesty panel (measured metrics) | ✅ Done | 2026-10-16 | Fake-clock tests and user-supplied Chrome evidence cover normal/burst metrics and disconnected ages with red STALE badges; compositor paint latency remains unmeasured. |
 | 9 | Load/burst test + fixes | ✅ Done | 2026-10-16 | Root tests, three-burst load/soak, 45-second automatic timing, and clean clone passed; user-supplied 7:32 recording now also shows the page-side automatic burst without a button press. |
-| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-18 | Final documents and automated checks are complete; the source ZIP was refreshed from the published documentation state. Final video export/delivery and the absent planning-chat transcript remain user-owned. No newer project session logs were available to export. |
+| 10 | DECISIONS.md + demo prep + transcript | 🟨 In progress | 2026-10-19 | Final fixes and automated test/build checks recorded; final video export/delivery and any required missing planning-chat transcript remain outstanding. |
 | 11 | Browser-triggered burst | ✅ Done | 2026-10-17 | User-reported manual Chrome check confirms normal traffic, burst state and stale-counter increase, exact HTTP 502 button message with separate WebSocket disconnection and incoming rate 0, then reconnect/recovery after restart. Shutdown logs included WebSocket send error: write ECANCELED; see the Step 11 follow-up entry for exact context. |
 
 Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
@@ -39,9 +39,8 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 
 | Date | Step | What the AI suggested | Why it was wrong/lazy | How it was handled |
 |------|------|-----------------------|-----------------------|--------------------|
-| | | | | |
 | 2026-10-15 | Step 1 (npm install) | The planning assistant said npm install failed because the Codex sandbox had no network access, and told me to run the install on my own PC. | My PC could reach the npm registry (PowerShell got HTTP 200). The real cause was Node 23.1.0 rejecting the HTTPS certificate (UNABLE_TO_VERIFY_LEAF_SIGNATURE). | Codex's own diagnostics exposed the mismatch. I installed a newer Node LTS and set NODE_USE_SYSTEM_CA=1 for the install. Codex also refused the shortcut of disabling TLS verification. |
-| Date: 2026-10-16 | Step: 8 and 9 (browser check) | What the AI suggested: The planning assistant told me the React commits per second should stay at or below about 60. | Why it was wrong: That assumed a 60 Hz screen. My display runs at about 120 Hz and the browser offered about 121 animation frames per second, so the correct bound is the browser's frame rate. | How it was handled: I measured in the browser (78 commits per second against 121 frame callbacks while about 2,500 updates per second arrived) and had the acceptance criterion corrected in docs/TEST_RESULTS.md. |
+| 2026-10-16 | Step 8 and 9 (browser check) | The planning assistant told me the React commits per second should stay at or below about 60. | That assumed a 60 Hz screen. My display runs at about 120 Hz and the browser offered about 121 animation frames per second, so the correct bound is the browser's frame rate. | I measured in the browser (78 commits per second against 121 frame callbacks while about 2,500 updates per second arrived) and had the acceptance criterion corrected in docs/TEST_RESULTS.md. |
 
 ---
 
@@ -65,6 +64,36 @@ Status values: ⬜ Not started · 🟨 In progress · ✅ Done · ❌ Blocked
 ## Change Log (newest first)
 
 <!-- Codex: add new entries directly below this line -->
+
+### 2026-10-19 15:20 Final fixes before submission
+**Prompt summary:** Correct the automatic-burst demo evidence, README details, assumptions behavior note, and AI suggestion table; verify test paths, run checks, then publish and rebuild the submission archives.
+**Files created:** none.
+**Files modified:** DEMO_SCRIPT.md — recorded the user-supplied automatic burst evidence and made the new-take and red STALE checklist instructions explicit. README.md — stated tested/recommended Node versions and expanded the project structure. DECISIONS.md — added the expected disconnect/reconnect and stale-update behavior paragraph, preserving its other content and final hours line. CHANGES_LOG.md — normalized the specified AI Suggestions Log rows and recorded this task. Generated/ignored: submission/live-fleet-board-code.zip and submission/live-fleet-board-ai-transcripts.zip — to be rebuilt from final HEAD and the transcript directory respectively.
+**Files deleted:** none.
+**What changed (plain English):** Updated only the requested documentation, confirmed all test script paths match tracked path casing, and preserved the existing working-tree changes. The final code ZIP is generated after the commit so it represents HEAD; the transcript ZIP contains only files from docs/ai-transcript/.
+**Why / design reasoning:** Keep user-supplied browser evidence clearly labelled, distinguish tested Node support from the package engine range, and describe the current disconnect and sequence-guard behavior without changing application code.
+**Tests run & REAL results:** `npm test` → PASS, 24 passed / 0 failed in 9.657 s; feed integration 180 messages in 3.004 s (59.92/sec); short burst 6,002 messages in 2.009 s (2,987.56/sec), 648 out-of-order frames and 648 stale rejects. `npm run build --workspace=client` → PASS; Vite 8.3.4 transformed 22 modules and built in 377 ms. Case-sensitive `git ls-files` audit → six test paths, six exact matches, zero mismatches. `git diff --check` → exit 0 (Git reports the existing LF-to-CRLF working-copy warnings).
+**Verified:** The automatic-burst paragraph uses the exact user-supplied evidence; the README engine minimum matches package.json (`>=20.19.0`); DECISIONS.md ends with `Hours spent: 15`; the user-requested AI table row was normalized without changing the other suggestion row. No application source or package scripts were changed.
+**Not verified:** No browser session was run. No load test was requested in this pass. Video export, upload, Drive link permissions, and actual form submission remain unverified.
+**Known issues / limitations:** The final walkthrough video is still not present in the workspace; an actual planning-assistant transcript remains absent if required by the evaluator.
+**Deviations from spec:** none.
+**Next step:** Commit and push these documentation fixes, then rebuild and inspect the ignored ZIP artifacts from the published HEAD.
+
+
+### 2026-10-18 23:13 Final submission preparation and verification
+**Prompt summary:** Prepare local submission artifacts, verify the current decision document, ZIPs, transcripts and application checks, and report manual steps still needed.
+**Files created:** submission/FINAL_SUBMISSION_CHECKLIST.md — requirement status and manual completion order; submission/FORM_ANSWERS.txt — known facts with placeholders for unknown video/form values; submission/VIDEO_EDITING_PLAN.md — evidence-based editing plan. submission/live-fleet-board-ai-transcripts.zip — archive of the five existing transcript Markdown files. submission/live-fleet-board-code-backup.zip — preserved prior source ZIP before refresh.
+**Files modified:** CHANGES_LOG.md — recorded the preparation and current verification. submission/live-fleet-board-code.zip — refreshed to include current tracked project files and the current DECISIONS.md.
+**Files deleted:** none.
+**What changed (plain English):** Verified the four assumptions and 15-hour line in DECISIONS.md, preserved its existing working-tree edit, and prepared the checklist, form-answer draft and video-editing plan. The old source ZIP was stale because its DECISIONS.md did not match the current file; it was backed up before rebuilding. Created and inspected a separate archive containing the five existing transcript files.
+**Why / design reasoning:** Make safe local submission preparation concrete while leaving the final video, upload, Drive permissions and actual form submission to the user. Do not infer missing footage or invent transcript content.
+**Tests run & REAL results:** `git diff --check` → exit 0 (Git emitted the existing LF-to-CRLF warning for DECISIONS.md). `npm test` → PASS, 24 passed / 0 failed in 9.915 s; normal feed 60.21/sec; short burst 2,990.53/sec with 663 out-of-order arrivals and 663 stale rejects. `npm run build --workspace=client` → PASS, 22 modules, 525 ms. `npm run load-test` → PASS: baseline 60.30/sec; three burst averages 2,994.34, 2,986.89 and 2,996.84/sec; stale rejects 1,886 + 1,960 + 1,924; zero state regressions; all 30 buses stayed within 1,000 ms (worst 523 ms on BUS-17); 30/30 sequence convergence; heap 8,790 KiB to 9,914 KiB (+1,124 KiB, within 12,288 KiB); automatic burst 45.01 s after client 1, and client 2 did not restart the timer (burst 24.99 s after client 2 connected). Code and transcript ZIP integrity checks passed; code ZIP decision contents match the current file.
+**Verified:** The current GitHub origin URL responds to a read-only `git ls-remote` probe. All nine restored paths and five available transcript files exist. The separate transcript ZIP opens and lists all five. The source ZIP has required content, no node_modules/dist/.git/MP4/PDF cache entries, and the archived DECISIONS.md matches the current file.
+**Not verified:** No browser was opened. No video source or add-on footage was available to inspect or combine. Video export, duration, upload, Drive sharing, and actual form submission remain unverified. The available transcript set does not include the separate planning-assistant conversation.
+**Known issues / limitations:** `submission/live-fleet-board-demo.mp4` is not present in the workspace; the user-reported recording was not accessible here. `ffmpeg` is not available. Repository visibility was not independently checked; a reachable remote HEAD does not prove public visibility.
+**Deviations from spec:** none.
+**Next step:** Locate and edit the video, export and play it through, upload it with Viewer link access, then complete and submit the form.
+
 
 ### [2026-10-18 22:24] Correct local commit identity and refresh source ZIP
 **Prompt summary:** Correct only the unpublished documentation commit's author/committer identity, push normally, rebuild the source archive, and record the fix.

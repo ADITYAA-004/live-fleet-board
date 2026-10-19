@@ -32,13 +32,16 @@ I chose freshness over complete motion. I lose intermediate positions when updat
 
 For a dispatcher deciding whether to hold a bus, I prefer its newest sequence-validated position and door state over a smooth replay of where it has already been. The age and STALE indicators make the age of that current state visible.
 
+## When a part is slower or less reliable than expected
+
+The client reconnects with backoff after a disconnect. While disconnected, the render loop keeps publishing, so per-bus ages keep growing and turn red with STALE and the header says disconnected rather than staying "live"; a stale or reordered update is rejected by the sequence guard instead of being shown.
+
 ## Assumptions and what fails if wrong
 
-- I assume the browser and server share one machine clock, because age is calculated as now minus ts. If that is wrong, clock skew can make displayed age misleading.
+- I assume the browser and server share one machine clock, and that the 1,000 ms budget means now minus the timestamp of the newest accepted update. Because age is calculated as now minus ts, clock skew can make displayed age misleading. At about two updates per second per bus, age naturally swings from 0 to about 500 ms even with a perfect pipeline. The recorded browser peaks were 502 ms for the captured burst, 502–508 ms in normal traffic, and 511 ms in a separate burst-button recording. Those readings show little added delay in this setup. If the clocks differ, skew can make age misleading; if the budget assumption is wrong, a slower-reporting bus could show red even with an instant pipeline because feed cadence itself would count as staleness.
 - I assume each bus sequence increases within one runId and a server restart changes runId. If that is wrong, the client can reject valid updates or accept an update from an earlier run.
 - I assume the feed is simulated telemetry with the documented fields. If that is wrong, these tests say nothing about the validity or safety of real vehicle sensors.
 - I assume one authoritative server instance sits behind the Vite proxy. If that is wrong, instances can disagree about runId, sequence history, and burst responses; multi-instance coordination is not implemented.
-- I assume the 1,000 ms budget means now minus the timestamp of the newest accepted update. At about two updates per second per bus, age naturally swings from 0 to about 500 ms even with a perfect pipeline. The recorded browser peaks were 502 ms for the captured burst, 502–508 ms in normal traffic, and 511 ms in a separate burst-button recording. Those readings show little added delay in this setup. If this assumption is wrong, a slower-reporting bus could show red even with an instant pipeline because feed cadence itself would count as staleness.
 
 ## Stack and implementation details
 
